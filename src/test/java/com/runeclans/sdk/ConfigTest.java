@@ -92,6 +92,7 @@ class ConfigTest {
 
     @Test
     void outsideGitThereIsNothingToCheck() {
+        org.junit.jupiter.api.Assumptions.assumeTrue(GitCheck.gitRoot(dir.getParent()) == null, "the temp folder sits inside a git tree here");
         assertEquals(null, GitCheck.gitRoot(dir));
     }
 }

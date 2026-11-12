@@ -18,7 +18,7 @@ public record EventBoard(
             Long columns,
             List<JsonNode> tiles,
             List<JsonNode> rows,
-            /** Tile numbers a re-roll keeps in place (T-937) */
+            /** Tile numbers a re-roll keeps in place */
             List<Long> locked,
             JsonNode mine,
             JsonNode layout

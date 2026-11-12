@@ -78,9 +78,19 @@ final class Core {
     Me refreshHandshake() {
         synchronized (handshakeLock) {
             lastHandshakeTry = ticker.nanos();
-            Transport.Response r = send(Routes.GET_ME, "/v1/me", null, Map.of(), null, false);
+            Transport.Response r;
+            try {
+                r = send(Routes.GET_ME, "/v1/me", null, Map.of(), null, false);
+            } catch (RuneClanException e) {
+                // an interrupt is not an outage: the next call may try the handshake again at once
+                if ("interrupted".equals(e.code())) lastHandshakeTry = Long.MIN_VALUE;
+                throw e;
+            }
             Me me = decode(r, Me.class);
+            if (me == null) throw new RuneClanException(r.status(), "bad_answer", "The RuneClan hub's handshake answer was empty.", null, null, false, null);
             apply(me);
+            // the handshake's own answer already counts against the bucket: apply its headers now that the bucket exists
+            pacer.observe(intHeader(r, "RateLimit-Limit"), intHeader(r, "RateLimit-Remaining"), windowSeconds);
             return me;
         }
     }
@@ -95,13 +105,19 @@ final class Core {
             try {
                 refreshHandshake();
             } catch (RuneClanException e) {
-                if (e.status() == 0 || e.status() >= 500) {
+                if (transientFailure(e)) {
                     LOG.log(Level.WARNING, "RuneClan SDK: the start-up handshake got no answer ({0}); calls go out unpaced until it works.", e.code());
                 } else {
                     throw e;
                 }
             }
         }
+    }
+
+    /** No answer, a 429 or a 5xx: worth trying again later, not a reason to stop the bot. An interrupt is passed on. */
+    static boolean transientFailure(RuneClanException e) {
+        if ("interrupted".equals(e.code())) return false;
+        return e.status() == 0 || e.status() == 429 || e.status() >= 500;
     }
 
     private void apply(Me me) {
@@ -112,9 +128,16 @@ final class Core {
             pacer.configure(rl.perMinute(), rl.burst() == null ? rl.perMinute() : rl.burst(), window);
         }
         Me.Sdk sdk = me.sdk();
-        if (sdk != null && sdk.minVersion() != null && Versions.compare(RuneClanClient.VERSION, sdk.minVersion()) < 0) {
-            LOG.log(Level.ERROR, "RuneClan SDK: the hub no longer serves {0} {1} (oldest served: {2}). Update to {3}.",
-                    RuneClanClient.CLIENT_NAME, RuneClanClient.VERSION, sdk.minVersion(), sdk.latest());
+        if (sdk != null && sdk.minVersion() != null) {
+            try {
+                if (Versions.compare(RuneClanClient.VERSION, sdk.minVersion()) < 0) {
+                    LOG.log(Level.ERROR, "RuneClan SDK: the hub no longer serves {0} {1} (oldest served: {2}). Update to {3}.",
+                            RuneClanClient.CLIENT_NAME, RuneClanClient.VERSION, sdk.minVersion(), sdk.latest());
+                }
+            } catch (RuntimeException e) {
+                // a typo in the hub's data must never stop a bot from starting
+                LOG.log(Level.WARNING, "RuneClan SDK: the hub''s minVersion \"{0}\" isn''t a version; ignored.", sdk.minVersion());
+            }
         }
         if (me.notices() != null) {
             for (Me.NoticesItem n : me.notices()) {
@@ -169,6 +192,9 @@ final class Core {
                     pause(backoff(attempt));
                     continue;
                 }
+                if (e instanceof java.net.http.HttpTimeoutException && !(e instanceof java.net.http.HttpConnectTimeoutException)) {
+                    throw new RuneClanException(0, "timeout", "The RuneClan hub didn't answer " + route + " in time. It may still have done it.", null, null, false, e);
+                }
                 throw new RuneClanException(0, "unreachable", "The RuneClan hub couldn't be reached (" + e.getClass().getSimpleName() + ").", null, null, false, e);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -179,9 +205,12 @@ final class Core {
             if (status == 429) {
                 Integer ra = intHeader(r, "Retry-After");
                 long wait = ra == null ? 1 : Math.max(0, ra);
-                pacer.blockFor(wait);
-                // the hub refused before doing anything, so any call may go again
-                if (attempt < config.maxAttempts() && Duration.ofSeconds(wait).compareTo(config.maxRetryWait()) <= 0) {
+                // The hub's own 429 (its JSON rate_limited answer) comes from the key check, before the route does anything, so any
+                // call may go again. A 429 from something in between (a proxy) proves nothing: only repeatable calls go again then.
+                boolean again = repeatable || hubRateLimited(r);
+                if (again && attempt < config.maxAttempts() && Duration.ofSeconds(wait).compareTo(config.maxRetryWait()) <= 0) {
+                    // only a wait the SDK actually does holds back other calls; a refused long wait is the caller's to handle
+                    pacer.blockFor(wait);
                     if (!route.keyed()) pause(Duration.ofSeconds(wait));
                     continue;
                 }
@@ -200,6 +229,16 @@ final class Core {
             }
             if (status >= 200 && status < 300) return r;
             throw error(r, route);
+        }
+    }
+
+    /** A 429 the hub's key check gave: JSON with error rate_limited. */
+    private static boolean hubRateLimited(Transport.Response r) {
+        try {
+            JsonNode n = r.body().length == 0 ? null : JSON.readTree(r.body());
+            return n != null && "rate_limited".equals(n.path("error").asText());
+        } catch (IOException e) {
+            return false;
         }
     }
 

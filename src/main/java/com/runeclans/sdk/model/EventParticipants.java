@@ -36,7 +36,7 @@ public record EventParticipants(
             Long rating,
             String source,
             String teamJoinedAt,
-            /** Organisers only (T-938): the latest known stats of their account */
+            /** Organisers only: the latest known stats of their account */
             Strength strength,
             /** Organisers only: 1 to 5 from total XP against the other players; null when fewer than two players have stats */
             Long suggestedRating,
@@ -45,7 +45,7 @@ public record EventParticipants(
             /** Organisers only: why they can't be put on a team yet (waiting, not verified), or null */
             String teamBlock
     ) {
-        /** Organisers only (T-938): the latest known stats of their account */
+        /** Organisers only: the latest known stats of their account */
         @JsonIgnoreProperties(ignoreUnknown = true)
         public record Strength(
                 String rsn,

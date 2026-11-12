@@ -47,7 +47,7 @@ public final class Webhooks {
      * {@code toleranceSeconds}. Compares in constant time.
      */
     public static boolean verify(String secret, String signatureHeader, String rawBody, long toleranceSeconds, long nowSeconds) {
-        if (secret == null || signatureHeader == null || rawBody == null) return false;
+        if (secret == null || secret.isEmpty() || signatureHeader == null || rawBody == null) return false;
         String t = null;
         String v1 = null;
         for (String part : signatureHeader.split(",")) {
@@ -61,8 +61,8 @@ public final class Webhooks {
             mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
             byte[] expected = HexFormat.of().formatHex(mac.doFinal((t + "." + rawBody).getBytes(StandardCharsets.UTF_8))).getBytes(StandardCharsets.US_ASCII);
             return MessageDigest.isEqual(expected, v1.getBytes(StandardCharsets.US_ASCII));
-        } catch (Exception e) {
-            return false;
+        } catch (java.security.GeneralSecurityException e) {
+            throw new IllegalStateException("HmacSHA256 isn't available in this Java", e);
         }
     }
 

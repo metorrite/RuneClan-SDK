@@ -16,7 +16,7 @@ public record EventCohosts(
             /** One of: INVITED, ACCEPTED, DECLINED. */
             String status,
             Long quota,
-            /** The co-host's Discord channel for the event's panel (T-941) */
+            /** The co-host's Discord channel for the event's panel */
             String panelChannelId,
             Long offeredQuota,
             String message,

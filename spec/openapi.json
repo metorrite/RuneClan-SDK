@@ -221,7 +221,7 @@
             "$ref": "#/components/responses/RateLimited"
           }
         },
-        "description": "404 while data trust is off in the hub (HUB_DATA_TRUST).",
+        "description": "404 while data trust is off in the hub.",
         "security": [
           {
             "apiKey": []
@@ -2123,7 +2123,7 @@
             "$ref": "#/components/responses/RateLimited"
           }
         },
-        "description": "Any key. Public templates only, while HUB_TEMPLATES is on (404 otherwise). Private templates are never listed or found.",
+        "description": "Any key. Public templates only, while that hub feature is on (404 otherwise). Private templates are never listed or found.",
         "security": [
           {
             "apiKey": []
@@ -2202,7 +2202,7 @@
             "$ref": "#/components/responses/RateLimited"
           }
         },
-        "description": "Any key. Public templates only, while HUB_TEMPLATES is on (404 otherwise). Private templates are never listed or found.",
+        "description": "Any key. Public templates only, while that hub feature is on (404 otherwise). Private templates are never listed or found.",
         "security": [
           {
             "apiKey": []
@@ -2259,7 +2259,7 @@
             "$ref": "#/components/responses/RateLimited"
           }
         },
-        "description": "Any key. Global game data, no player data. 404 while HUB_LOGS is off. Built from the RuneScape Wiki; show `attribution` wherever it is used.",
+        "description": "Any key. Global game data, no player data. 404 while that hub feature is off. Built from the RuneScape Wiki; show `attribution` wherever it is used.",
         "security": [
           {
             "apiKey": []
@@ -2302,7 +2302,7 @@
             "$ref": "#/components/responses/RateLimited"
           }
         },
-        "description": "Needs the scope `events:read`. Needs the player's grant covering DROPS and their logs set to public; 404 otherwise, exactly like an unknown player. Read-only. 404 while HUB_LOGS is off.",
+        "description": "Needs the scope `events:read`. Needs the player's grant covering DROPS and their logs set to public; 404 otherwise, exactly like an unknown player. Read-only. 404 while that hub feature is off.",
         "security": [
           {
             "apiKey": []
@@ -2367,7 +2367,7 @@
             "$ref": "#/components/responses/RateLimited"
           }
         },
-        "description": "Needs the scope `events:read`. Members registered in the guild whose grant covers DROPS and whose logs are clan or public. 404 while HUB_LOGS is off.",
+        "description": "Needs the scope `events:read`. Members registered in the guild whose grant covers DROPS and whose logs are clan or public. 404 while that hub feature is off.",
         "security": [
           {
             "apiKey": []
@@ -2501,7 +2501,7 @@
             "$ref": "#/components/responses/RateLimited"
           }
         },
-        "description": "First-party apps read any clan; another app (HUB_THIRD_PARTY_BOTS=on) only a clan whose site admin connected it, 404 for the rest. Call it on start to catch up; changes arrive as feature.changed feed entries. 404 while HUB_FEATURES is off.",
+        "description": "First-party apps read any clan; another app only a clan whose site admin connected it, 404 for the rest. Call it on start to catch up; changes arrive as feature.changed feed entries. 404 while that hub feature is off.",
         "security": [
           {
             "apiKey": []
@@ -2555,7 +2555,7 @@
             "$ref": "#/components/responses/RateLimited"
           }
         },
-        "description": "As /v1/clans/{clanId}/features, by site: first-party apps read any site; another app (HUB_THIRD_PARTY_BOTS=on) only a site it is connected to (a clan site through its clan, a community site directly), 404 for the rest. 404 while HUB_FEATURES is off.",
+        "description": "As /v1/clans/{clanId}/features, by site: first-party apps read any site; another app only a site it is connected to (a clan site through its clan, a community site directly), 404 for the rest. 404 while that hub feature is off.",
         "security": [
           {
             "apiKey": []
@@ -2602,7 +2602,7 @@
             "$ref": "#/components/responses/RateLimited"
           }
         },
-        "description": "Needs the scope `features:report`. Another app's list counts only for clans that connected it (HUB_THIRD_PARTY_BOTS=on). 404 while HUB_FEATURES is off.",
+        "description": "Needs the scope `features:report`. Another app's list counts only for clans that connected it. 404 while that hub feature is off.",
         "security": [
           {
             "apiKey": []
@@ -2676,7 +2676,7 @@
             "$ref": "#/components/responses/RateLimited"
           }
         },
-        "description": "Needs the scope `features:report`. Declaring here is what connects RuneClan Bot to the server's site. Another app shows as asking to connect, and counts once the site's admin connects it (HUB_THIRD_PARTY_BOTS=on); a disconnect arrives as clan.grant_changed. An app that isn't RuneClans' own may flag at most 500 servers (422 too_many_servers; an empty list for a server you left is always allowed). Flags are all it writes: other apps are read-only. 404 while HUB_FEATURES is off.",
+        "description": "Needs the scope `features:report`. Declaring here is what connects RuneClan Bot to the server's site. Another app shows as asking to connect, and counts once the site's admin connects it; a disconnect arrives as clan.grant_changed. An app that isn't RuneClans' own may flag at most 500 servers (422 too_many_servers; an empty list for a server you left is always allowed). Flags are all it writes: other apps are read-only. 404 while that hub feature is off.",
         "security": [
           {
             "apiKey": []
@@ -2769,7 +2769,7 @@
             "$ref": "#/components/responses/RateLimited"
           }
         },
-        "description": "Needs the scope `events:read`. Only players whose grant to you covers XP (and the server you name, if they limited it) and who still let the plugin collect XP; anyone else is 404 / notCounted. Numbers: xp = raw ÷ xpScale; xpRaw is the game's own unit. 404 while HUB_XP is off. 404 when X-Guild-Id names a server the member hides from leaderboards on (T-750).",
+        "description": "Needs the scope `events:read`. Only players whose grant to you covers XP (and the server you name, if they limited it) and who still let the plugin collect XP; anyone else is 404 / notCounted. Numbers: xp = raw ÷ xpScale; xpRaw is the game's own unit. 404 while that hub feature is off. 404 when X-Guild-Id names a server the member hides from leaderboards on.",
         "security": [
           {
             "apiKey": []
@@ -2950,7 +2950,7 @@
             "$ref": "#/components/responses/RateLimited"
           }
         },
-        "description": "Needs the scope `events:read`. Only players whose grant to you covers XP (and the server you name, if they limited it) and who still let the plugin collect XP; anyone else is 404 / notCounted. Numbers: xp = raw ÷ xpScale; xpRaw is the game's own unit. 404 while HUB_XP is off. Up to 500 players per call. Catch-up and suspect XP are left out unless asked for. The guild must be yours (PUT /v1/guilds/{guildId}). A member who hides from leaderboards on this server is left out, whatever they granted (T-750) (listed in notCounted).",
+        "description": "Needs the scope `events:read`. Only players whose grant to you covers XP (and the server you name, if they limited it) and who still let the plugin collect XP; anyone else is 404 / notCounted. Numbers: xp = raw ÷ xpScale; xpRaw is the game's own unit. 404 while that hub feature is off. Up to 500 players per call. Catch-up and suspect XP are left out unless asked for. The guild must be yours (PUT /v1/guilds/{guildId}). A member who hides from leaderboards on this server is left out, whatever they granted (listed in notCounted).",
         "security": [
           {
             "apiKey": []
@@ -3059,7 +3059,7 @@
             "$ref": "#/components/responses/RateLimited"
           }
         },
-        "description": "Needs the scope `events:read`. Only players whose grant to you covers XP (and the server you name, if they limited it) and who still let the plugin collect XP; anyone else is 404 / notCounted. Numbers: xp = raw ÷ xpScale; xpRaw is the game's own unit. 404 while HUB_XP is off. Members are the ones you registered (PUT /v1/guilds/{guildId}/members/{alias}). A member who hides from leaderboards on this server is left out, whatever they granted (T-750).",
+        "description": "Needs the scope `events:read`. Only players whose grant to you covers XP (and the server you name, if they limited it) and who still let the plugin collect XP; anyone else is 404 / notCounted. Numbers: xp = raw ÷ xpScale; xpRaw is the game's own unit. 404 while that hub feature is off. Members are the ones you registered (PUT /v1/guilds/{guildId}/members/{alias}). A member who hides from leaderboards on this server is left out, whatever they granted.",
         "security": [
           {
             "apiKey": []
@@ -3251,7 +3251,7 @@
             "$ref": "#/components/responses/RateLimited"
           }
         },
-        "description": "Needs the scope `events:read`. Only players whose grant to you covers XP (and the server you name, if they limited it) and who still let the plugin collect XP; anyone else is 404 / notCounted. Numbers: xp = raw ÷ xpScale; xpRaw is the game's own unit. 404 while HUB_XP is off. Members are the ones you registered (PUT /v1/guilds/{guildId}/members/{alias}). Catch-up and suspect XP never count. At most 2,000 rows. A member who hides from leaderboards on this server is left out, whatever they granted (T-750).",
+        "description": "Needs the scope `events:read`. Only players whose grant to you covers XP (and the server you name, if they limited it) and who still let the plugin collect XP; anyone else is 404 / notCounted. Numbers: xp = raw ÷ xpScale; xpRaw is the game's own unit. 404 while that hub feature is off. Members are the ones you registered (PUT /v1/guilds/{guildId}/members/{alias}). Catch-up and suspect XP never count. At most 2,000 rows. A member who hides from leaderboards on this server is left out, whatever they granted.",
         "security": [
           {
             "apiKey": []
@@ -3396,7 +3396,7 @@
             "$ref": "#/components/responses/RateLimited"
           }
         },
-        "description": "Needs the scope `events:read`. Only players whose grant to you covers XP (and the server you name, if they limited it) and who still let the plugin collect XP; anyone else is 404 / notCounted. Numbers: xp = raw ÷ xpScale; xpRaw is the game's own unit. 404 while HUB_XP is off. Members are the ones you registered (PUT /v1/guilds/{guildId}/members/{alias}). Catch-up and suspect XP never count. A member who hides from leaderboards on this server is left out, whatever they granted (T-750).",
+        "description": "Needs the scope `events:read`. Only players whose grant to you covers XP (and the server you name, if they limited it) and who still let the plugin collect XP; anyone else is 404 / notCounted. Numbers: xp = raw ÷ xpScale; xpRaw is the game's own unit. 404 while that hub feature is off. Members are the ones you registered (PUT /v1/guilds/{guildId}/members/{alias}). Catch-up and suspect XP never count. A member who hides from leaderboards on this server is left out, whatever they granted.",
         "security": [
           {
             "apiKey": []
@@ -3543,7 +3543,7 @@
             "$ref": "#/components/responses/RateLimited"
           }
         },
-        "description": "Needs the scope `events:read`. Only players whose grant to you covers XP (and the server you name, if they limited it) and who still let the plugin collect XP; anyone else is 404 / notCounted. Numbers: xp = raw ÷ xpScale; xpRaw is the game's own unit. 404 while HUB_XP is off. Counts the guild's members who share XP with you (their grant covers XP); never one member's numbers. Days are UTC (game) days. Members who hide from leaderboards on this server aren't counted (T-750).",
+        "description": "Needs the scope `events:read`. Only players whose grant to you covers XP (and the server you name, if they limited it) and who still let the plugin collect XP; anyone else is 404 / notCounted. Numbers: xp = raw ÷ xpScale; xpRaw is the game's own unit. 404 while that hub feature is off. Counts the guild's members who share XP with you (their grant covers XP); never one member's numbers. Days are UTC (game) days. Members who hide from leaderboards on this server aren't counted.",
         "security": [
           {
             "apiKey": []
@@ -4659,7 +4659,7 @@
             "$ref": "#/components/responses/SdkTooOld"
           }
         },
-        "description": "T-897: the websites' image proxy asks here instead of Jagex; the hub keeps its own copy (a day for a customised look, an hour for the default helmet) and is the only caller of Jagex's avatar address.",
+        "description": "the websites' image proxy asks here instead of Jagex; the hub keeps its own copy (a day for a customised look, an hour for the default helmet) and is the only caller of Jagex's avatar address.",
         "security": [
           {
             "apiKey": []
@@ -5196,7 +5196,7 @@
             "$ref": "#/components/responses/RateLimited"
           }
         },
-        "description": "The invited clan's admins and staff. Reading it marks the host's notes read (T-951). Any key; another app sees only shared events.",
+        "description": "The invited clan's admins and staff. Reading it marks the host's notes read. Any key; another app sees only shared events.",
         "security": [
           {
             "apiKey": []
@@ -6504,7 +6504,7 @@
             "$ref": "#/components/responses/RateLimited"
           }
         },
-        "description": "Organisers (T-938). A match without a personId never linked with RuneLink, so the hub has nobody to add; the website says so. Any key; another app sees only shared events.",
+        "description": "Organisers. A match without a personId never linked with RuneLink, so the hub has nobody to add; the website says so. Any key; another app sees only shared events.",
         "security": [
           {
             "apiKey": []
@@ -6869,7 +6869,7 @@
             "$ref": "#/components/responses/RateLimited"
           }
         },
-        "description": "The host's organisers and the invited clan's staff. Reading marks the other side's notes read (T-951). Any key; another app sees only shared events.",
+        "description": "The host's organisers and the invited clan's staff. Reading marks the other side's notes read. Any key; another app sees only shared events.",
         "security": [
           {
             "apiKey": []
@@ -10799,7 +10799,7 @@
             "description": "Only on a clan's own page: null when the clan hides its alliances, else {mode: NONE|LIST, alliances: [{id, name, hasPage, clans: [{slug, name, logoUrl, colour}]}]}"
           }
         },
-        "description": "RuneClan Bot's directory shape plus clanId and rev. The page's own fields (description and after) only on GET /v1/directory/clans/{slug}, except timezone, which the list carries too (T-599, the website's clan finder)."
+        "description": "RuneClan Bot's directory shape plus clanId and rev. The page's own fields (description and after) only on GET /v1/directory/clans/{slug}, except timezone, which the list carries too."
       },
       "Error": {
         "type": "object",
@@ -11211,7 +11211,7 @@
               "type": "string",
               "maxLength": 24
             },
-            "description": "Custom tags (T-952)"
+            "description": "Custom tags"
           },
           "access": {
             "type": "string",
@@ -11322,7 +11322,7 @@
                 "items": {
                   "type": "integer"
                 },
-                "description": "Tile numbers a re-roll keeps in place (T-937)"
+                "description": "Tile numbers a re-roll keeps in place"
               },
               "mine": {
                 "type": "object",
@@ -11526,7 +11526,7 @@
                     "string",
                     "null"
                   ],
-                  "description": "The co-host's Discord channel for the event's panel (T-941)"
+                  "description": "The co-host's Discord channel for the event's panel"
                 },
                 "offeredQuota": {
                   "type": [
@@ -12049,7 +12049,7 @@
                     "object",
                     "null"
                   ],
-                  "description": "Organisers only (T-938): the latest known stats of their account",
+                  "description": "Organisers only: the latest known stats of their account",
                   "properties": {
                     "rsn": {
                       "type": "string"
@@ -13918,7 +13918,7 @@
       },
       "Me": {
         "type": "object",
-        "description": "The SDKs' start-up handshake (T-1072): who the key is, what it may do, how fast, and whether the SDK that asked is still served.",
+        "description": "The SDKs' start-up handshake: who the key is, what it may do, how fast, and whether the SDK that asked is still served.",
         "properties": {
           "appId": {
             "type": "string"
@@ -15302,7 +15302,7 @@
           },
           "optedOut": {
             "type": "boolean",
-            "description": "Whether the viewer keeps out of auto-enrol (T-941)"
+            "description": "Whether the viewer keeps out of auto-enrol"
           },
           "announceChannelId": {
             "type": [

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;
 
-/** RuneClan Bot's directory shape plus clanId and rev. The page's own fields (description and after) only on GET /v1/directory/clans/{slug}, except timezone, which the list carries too (T-599, the website's clan finder). */
+/** RuneClan Bot's directory shape plus clanId and rev. The page's own fields (description and after) only on GET /v1/directory/clans/{slug}, except timezone, which the list carries too. */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record DirectoryClan(
         String clanId,

@@ -28,11 +28,14 @@ public final class RuneClan {
             try {
                 client.refreshHandshake();
             } catch (RuneClanException e) {
-                if (e.status() != 0 && e.status() < 500) {
+                if (!Core.transientFailure(e)) {
                     client.close();
                     throw e;
                 }
-                Core.LOG.log(System.Logger.Level.WARNING, "RuneClan SDK: the hub didn''t answer the start-up handshake ({0}); it will be tried again.", e.code());
+                Core.LOG.log(System.Logger.Level.WARNING, "RuneClan SDK: the start-up handshake didn''t work ({0}); it will be tried again.", e.code());
+            } catch (RuntimeException | Error e) {
+                client.close();
+                throw e;
             }
         }
         return client;

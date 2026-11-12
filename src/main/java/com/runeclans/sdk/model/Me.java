@@ -4,7 +4,7 @@ package com.runeclans.sdk.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
 
-/** The SDKs' start-up handshake (T-1072): who the key is, what it may do, how fast, and whether the SDK that asked is still served. */
+/** The SDKs' start-up handshake: who the key is, what it may do, how fast, and whether the SDK that asked is still served. */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record Me(
         String appId,

@@ -49,10 +49,19 @@ class SpecTest {
     }
 
     @Test
-    void theVersionMatchesThePom() {
-        String pom = System.getProperty("sdk.pomVersion");
-        if (pom != null) assertEquals(pom, RuneClanClient.VERSION);
+    void theVersionMatchesThePom() throws Exception {
+        String pom = Files.readString(Path.of("pom.xml"));
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("<artifactId>runeclan-sdk</artifactId>\\s*<version>([^<]+)</version>").matcher(pom);
+        assertTrue(m.find(), "the pom's own version");
+        assertEquals(m.group(1), RuneClanClient.VERSION);
         assertTrue(RuneClanClient.VERSION.matches("\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z.-]+)?"));
+    }
+
+    @Test
+    void theSpecCarriesNoInternalNotes() throws Exception {
+        String text = Files.readString(Path.of("spec", "openapi.json"));
+        assertTrue(!java.util.regex.Pattern.compile("\\b[TBPL]-\\d{2,4}\\b").matcher(text).find(), "ticket numbers");
+        assertTrue(!text.contains("HUB_"), "hub switch names");
     }
 
     @Test

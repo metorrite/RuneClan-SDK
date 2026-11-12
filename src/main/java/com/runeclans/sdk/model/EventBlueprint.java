@@ -20,7 +20,7 @@ public record EventBlueprint(
         String updatedAt,
         /** Bumped by every change; send it back as If-Match */
         Long rev,
-        /** Custom tags (T-952) */
+        /** Custom tags */
         List<String> tags,
         /** Private: the clan's hosts; Restricted: also the people in sharedWith; Public: published to the library, can be updated but not removed or taken back One of: PRIVATE, RESTRICTED, PUBLIC. */
         String access,

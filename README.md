@@ -64,7 +64,7 @@ Every method gives back an `ApiAction`, like JDA's `RestAction`:
 | --- | --- |
 | `.complete()` | Sends the call and waits for the answer. Use it on your own worker or virtual thread. |
 | `.submit()` | Gives a `CompletableFuture`. |
-| `.queue(ok, failed)` | Runs your callbacks when the answer comes. Never blocks a JDA listener. |
+| `.queue(ok, failed)` | Runs your callbacks when the answer comes. Never blocks a JDA listener. Without `failed`, a failure is logged. |
 
 ```java
 Optional<Clan> clan = hub.clans().byName("Younglings").complete();
@@ -94,11 +94,13 @@ EventStandingsAnswer standings = hub.route(Routes.GET_EVENTS_EVENT_ID_STANDINGS)
   instead of a 403 later. Got a new scope? Call `hub.refreshHandshake()`.
 - **Rate limits.** The SDK keeps a local copy of your key's limit from the handshake and waits for a free slot instead of sending a call
   it knows will be refused. Every answer's `RateLimit-Remaining` keeps it honest when several copies of your bot share one key.
-- **429.** It waits the hub's `Retry-After` (up to 60 s; set `maxRetryWait`) and sends the call again. The hub refused before doing
-  anything, so this is safe for every call.
+- **429.** It waits the hub's `Retry-After` (up to 60 s; set `maxRetryWait`) and sends the call again. The hub's own 429 comes before
+  it does anything, so that is safe for every call; a 429 from something in between (a proxy) only repeats reads and `PUT`s. A longer
+  wait is handed to you as the 429 and holds back no other call.
 - **Outages.** After a lost connection or a 502/503/504, reads and `PUT`s are sent again (3 tries in all, with backoff). `POST` and
   `DELETE` are **never** sent again blind, because the first one may have worked. Mark a write with `.idempotent()` on a `route(...)`
-  call to make it safe to repeat (the hub then answers a repeat with the first answer). Needs a hub that honours `Idempotency-Key`.
+  call to make it safe to repeat (the hub then answers a repeat with the first answer). Only use it once the hub supports
+  `Idempotency-Key`: a hub without it ignores the key, and a resend could then do the write twice.
 - **Versions.** Every call says `X-RuneClan-Client: runeclan-sdk-java/<version>`. The handshake's notices (for example "update before
   2027-01-01") are logged once, and kept in `hub.handshake()`. A version the hub no longer serves gets a clear `sdk_too_old` error.
 
@@ -110,7 +112,8 @@ Everything that fails throws (or completes the future with) `RuneClanException`:
 
 - `status()`: the HTTP status, or 0 when no answer came back
 - `code()`: the hub's error code (`not_found`, `missing_scope`, `rate_limited`, ... listed under `x-runeclan-error-codes` in
-  `spec/openapi.json`), or the SDK's own `unreachable`, `interrupted`, `bad_answer`
+  `spec/openapi.json`), or the SDK's own `unreachable`, `timeout` (sent, but no answer in time: it may have happened), `interrupted`,
+  `bad_answer`
 - `retryAfter()`, `body()` (the hub's whole error answer), `local()` (true when nothing was sent)
 
 Lookups (`get`, `byName`, `byDiscordId`, ...) give an empty `Optional` for a 404.

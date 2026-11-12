@@ -14,7 +14,7 @@ public record SkillWeek(
         String mode,
         JsonNode vote,
         Boolean autoEnrol,
-        /** Whether the viewer keeps out of auto-enrol (T-941) */
+        /** Whether the viewer keeps out of auto-enrol */
         Boolean optedOut,
         String announceChannelId,
         List<JsonNode> skills,

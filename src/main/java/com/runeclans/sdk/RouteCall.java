@@ -66,7 +66,8 @@ public final class RouteCall {
     /**
      * Marks this write as safe to send again: adds an {@code Idempotency-Key} (a new UUID, kept for every retry of this call), so the hub
      * answers a repeat with the first answer instead of doing it twice, and the SDK may then retry it after a lost connection or a 5xx.
-     * Needs a hub that honours the header; on one that doesn't, leave it off.
+     * Needs a hub that honours the header: a hub without it ignores the key, and a
+     * resend there can do the write twice. Leave it off until your hub supports it.
      */
     public RouteCall idempotent() {
         return idempotencyKey(UUID.randomUUID().toString());

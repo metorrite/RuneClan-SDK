@@ -13,6 +13,7 @@ import java.util.function.Supplier;
  * gateway thread. Sending again sends a new call each time.
  */
 public final class ApiAction<T> {
+    private static final System.Logger LOG = System.getLogger("com.runeclans.sdk");
     private final Supplier<T> call;
     private final Executor executor;
 
@@ -41,13 +42,32 @@ public final class ApiAction<T> {
         submit().whenComplete((value, error) -> {
             if (error != null) {
                 Throwable cause = error instanceof java.util.concurrent.CompletionException && error.getCause() != null ? error.getCause() : error;
-                if (failure != null) failure.accept(cause);
+                if (failure != null) {
+                    try {
+                        failure.accept(cause);
+                    } catch (RuntimeException e) {
+                        LOG.log(System.Logger.Level.WARNING, "RuneClan SDK: a queue() failure callback threw " + e.getClass().getSimpleName(), e);
+                    }
+                } else {
+                    // like JDA's RestAction: a failure nobody handles is logged, never lost
+                    LOG.log(System.Logger.Level.WARNING, "RuneClan SDK: a queued call failed: " + describe(cause));
+                }
             } else if (success != null) {
-                success.accept(value);
+                try {
+                    success.accept(value);
+                } catch (RuntimeException e) {
+                    LOG.log(System.Logger.Level.WARNING, "RuneClan SDK: a queue() success callback threw " + e.getClass().getSimpleName(), e);
+                }
             }
         });
     }
 
+    private static String describe(Throwable t) {
+        if (t instanceof RuneClanException e) return e.status() + " " + e.code();
+        return t.getClass().getSimpleName();
+    }
+
+    /** As {@link #queue(Consumer, Consumer)}; a failure is logged as a warning (status and code only). */
     public void queue(Consumer<? super T> success) {
         queue(success, null);
     }

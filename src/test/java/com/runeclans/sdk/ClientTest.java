@@ -155,6 +155,81 @@ class ClientTest {
     }
 
     @Test
+    void aRefusedLongWaitDoesntHoldBackTheNextCall() {
+        hub.answer(200, me("\"players:read\"", 600, 100))
+                .answer(429, "{\"error\":\"rate_limited\",\"message\":\"Too many\"}", Map.of("Retry-After", "600"))
+                .answer(200, "{\"data\":[],\"nextCursor\":null}");
+        RuneClanClient c = connect();
+        assertThrows(RuneClanException.class, () -> c.players().list(null, null).complete());
+        c.players().list(null, null).complete();
+        assertEquals(Duration.ZERO, clock.slept(), "the caller got the 429; nothing else waits 10 minutes");
+    }
+
+    @Test
+    void aProxys429RepeatsOnlyRepeatableCalls() {
+        hub.answer(200, me("\"webhooks:manage\",\"players:read\"", 600, 100))
+                .answer(429, "<html>slow down</html>", Map.of("Retry-After", "1"));
+        RuneClanClient c = connect();
+        RuneClanException e = assertThrows(RuneClanException.class, () -> c.webhooks().create("https://bot.example.org/h", null).complete());
+        assertEquals(429, e.status());
+        assertEquals(2, hub.requests().size(), "not the hub's own 429: the POST may have gone through");
+
+        hub.answer(429, "<html>slow down</html>", Map.of("Retry-After", "1")).answer(200, "{\"data\":[],\"nextCursor\":null}");
+        c.players().list(null, null).complete();
+        assertEquals(4, hub.requests().size(), "a GET goes again either way");
+    }
+
+    @Test
+    void aMinVersionTheSdkCantReadIsIgnored() {
+        for (String bad : new String[]{"0.3", "v0.3.0", "soon"}) {
+            FakeTransport h = new FakeTransport().answer(200, me("\"players:read\"", 60, 10).replace("\"minVersion\":null", "\"minVersion\":\"" + bad + "\""));
+            RuneClanClient c = RuneClan.connect(config().transport(h).build());
+            assertTrue(c.handshake().isPresent(), bad);
+            assertTrue(c.hasScope("players:read"), bad);
+        }
+    }
+
+    @Test
+    void a429OnTheHandshakeStillConnects() {
+        hub.answer(429, "{\"error\":\"rate_limited\",\"message\":\"Too many\"}", Map.of("Retry-After", "600"));
+        RuneClanClient c = connect();
+        assertTrue(c.handshake().isEmpty());
+        assertEquals(1, hub.requests().size());
+        clock.advance(Duration.ofSeconds(601));
+        hub.answer(200, me("\"players:read\"", 60, 10)).answer(200, "{\"data\":[],\"nextCursor\":null}");
+        c.players().list(null, null).complete();
+        assertTrue(c.handshake().isPresent(), "tried again on a later call");
+    }
+
+    @Test
+    void anEmptyHandshakeIsABadAnswer() {
+        for (String body : new String[]{"", "null"}) {
+            FakeTransport h = new FakeTransport().answer(200, body);
+            RuneClanException e = assertThrows(RuneClanException.class, () -> RuneClan.connect(config().transport(h).build()));
+            assertEquals("bad_answer", e.code());
+        }
+    }
+
+    @Test
+    void theHandshakesOwnRemainingHeaderCounts() {
+        hub.answer(200, me("\"players:read\"", 60, 10), Map.of("RateLimit-Limit", "60", "RateLimit-Remaining", "1"))
+                .handler(r -> new Transport.Response(200, Map.of(), "{\"data\":[],\"nextCursor\":null}".getBytes()));
+        RuneClanClient c = connect();
+        c.players().list(null, 1).complete();
+        assertEquals(Duration.ZERO, clock.slept());
+        c.players().list(null, 1).complete();
+        assertEquals(1000, clock.slept().toMillis(), "only one token was left after the handshake");
+    }
+
+    @Test
+    void aWriteThatTimedOutSaysItMayHaveHappened() {
+        hub.answer(200, me("\"webhooks:manage\"", 600, 100)).fail(new java.net.http.HttpTimeoutException("request timed out"));
+        RuneClanException e = assertThrows(RuneClanException.class, () -> connect().webhooks().create("https://bot.example.org/h", null).complete());
+        assertEquals("timeout", e.code());
+        assertTrue(e.getMessage().contains("may still have done it"));
+    }
+
+    @Test
     void readsAreRetriedAfterALostConnectionOrA503() {
         hub.answer(200, me("\"players:read\"", 600, 100))
                 .fail(new IOException("reset"))

@@ -10,6 +10,7 @@ public repo. Run tools/gen_model.py afterwards; the tests fail when the two drif
 import argparse
 import json
 import pathlib
+import re
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -28,6 +29,32 @@ def refs(node, found):
         for value in node:
             refs(value, found)
     return found
+
+
+# Internal notes that don't belong in a public repo: ticket numbers and the hub's own feature switches.
+SCRUB = [
+    (re.compile(r"\s*\((?:T|B|P|L)-\d+(?:,[^)]*)?\)"), ""),               # " (T-750)", " (T-599, the website's clan finder)"
+    (re.compile(r"\b(?:T|B|P|L)-\d+:\s*"), ""),                            # "T-897: ..."
+    (re.compile(r"\s*\((?:T|B|P|L)-\d+\)(?=:)"), ""),
+    (re.compile(r"\s*\(HUB_[A-Z_]+(?:=\w+)?\)"), ""),                     # " (HUB_THIRD_PARTY_BOTS=on)"
+    (re.compile(r"while HUB_[A-Z_]+ is off"), "while that hub feature is off"),
+    (re.compile(r"while HUB_[A-Z_]+ is on"), "while that hub feature is on"),
+    (re.compile(r"\bHUB_[A-Z_]+\b"), "a hub setting"),
+]
+
+
+def scrub(node):
+    if isinstance(node, dict):
+        return {k: (scrub_text(v) if k in ("description", "summary") and isinstance(v, str) else scrub(v)) for k, v in node.items()}
+    if isinstance(node, list):
+        return [scrub(v) for v in node]
+    return node
+
+
+def scrub_text(text):
+    for pattern, repl in SCRUB:
+        text = pattern.sub(repl, text)
+    return text
 
 
 def public_subset(spec):
@@ -62,7 +89,7 @@ def public_subset(spec):
         "components": out_comps,
         "x-runeclan-error-codes": spec.get("x-runeclan-error-codes", []),
     }
-    return out
+    return scrub(out)
 
 
 def main():
