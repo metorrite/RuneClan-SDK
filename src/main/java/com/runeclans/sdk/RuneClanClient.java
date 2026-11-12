@@ -99,7 +99,12 @@ public final class RuneClanClient implements AutoCloseable {
         return new Clans(this);
     }
 
-    /** Published sites, clan and community alike (communities are reached through their site). */
+    /** Communities: the finder's list, by address or id, with their join rules. */
+    public Communities communities() {
+        return new Communities(this);
+    }
+
+    /** Published sites, clan and community alike, by their address. */
     public Sites sites() {
         return new Sites(this);
     }

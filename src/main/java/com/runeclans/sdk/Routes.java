@@ -70,6 +70,12 @@ public final class Routes {
     public static final Route GET_SITES_SLUG = new Route("GET", "/v1/sites/{slug}", List.of(), true, "application/json", null);
     /** A clan's site: its id, address and whether it is published */
     public static final Route GET_CLANS_CLAN_ID_SITE = new Route("GET", "/v1/clans/{clanId}/site", List.of(), true, "application/json", com.runeclans.sdk.model.SiteSummary.class);
+    /** List communities that take members */
+    public static final Route GET_COMMUNITIES = new Route("GET", "/v1/communities", List.of(), true, "application/json", null);
+    /** A community by its website address */
+    public static final Route GET_COMMUNITIES_BY_SLUG_SLUG = new Route("GET", "/v1/communities/by-slug/{slug}", List.of(), true, "application/json", com.runeclans.sdk.model.CommunityListing.class);
+    /** A community and its join rules */
+    public static final Route GET_COMMUNITIES_COMMUNITY_ID = new Route("GET", "/v1/communities/{communityId}", List.of(), true, "application/json", com.runeclans.sdk.model.Community.class);
     /** A clan's profile */
     public static final Route GET_CLANS_CLAN_ID_PROFILE = new Route("GET", "/v1/clans/{clanId}/profile", List.of(), true, null, null);
     /** The clan directory: every listed clan (public, verified, not suspended), by name */
@@ -311,6 +317,9 @@ public final class Routes {
             GET_LINK_KEYS,
             GET_SITES_SLUG,
             GET_CLANS_CLAN_ID_SITE,
+            GET_COMMUNITIES,
+            GET_COMMUNITIES_BY_SLUG_SLUG,
+            GET_COMMUNITIES_COMMUNITY_ID,
             GET_CLANS_CLAN_ID_PROFILE,
             GET_DIRECTORY_CLANS,
             GET_DIRECTORY_CLANS_SLUG,

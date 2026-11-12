@@ -14,7 +14,7 @@ import java.util.Optional;
 
 /**
  * Registered clans. A clan has the hub's own id (a uuid; Jagex has none). Polls and signups also accept the clan site's Discord server
- * id. Community sites have no clan: reach them through {@link RuneClanClient#sites()}.
+ * id. Communities have no clan: see {@link RuneClanClient#communities()}.
  */
 public final class Clans {
     private final RuneClanClient c;

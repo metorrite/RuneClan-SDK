@@ -18,3 +18,5 @@ First release from this repository (0.1.0 lived inside the hub and was never pub
 - Data types generated from the hub's public OpenAPI operations (`spec/openapi.json`, `tools/gen_model.py`), and `Routes` lists all of
   them for `client.route(...)`.
 - `FakeTransport` and a `Ticker` seam for tests.
+- `communities()`: `list()`, `bySlug(slug)` and `get(communityId)`, read with any key as `clans()` (needs the hub's public community
+  routes). The spec now also carries the hub's `Idempotency-Key` header on keyed writes.
