@@ -10,6 +10,13 @@
     <name>RuneClan SDK for Java</name>
     <description>Client for the RuneClans hub API: API key file, start-up handshake, rate-limit pacing, retries, typed data</description>
     <url>https://github.com/metorrite/runeclan-sdk</url>
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://opensource.org/licenses/MIT</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
     <properties>
         <maven.compiler.release>17</maven.compiler.release>

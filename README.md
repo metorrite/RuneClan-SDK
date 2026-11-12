@@ -152,3 +152,7 @@ RuneClanClient hub = RuneClan.connect(RuneClanConfig.builder().apiKey(testKey).t
 - `spec/openapi.json` is the hub's spec with only its public operations. Refresh it with `tools/sync_spec.py`, then run
   `tools/gen_model.py`. Never edit `spec/`, `src/main/java/com/runeclans/sdk/model/` or `Routes.java` by hand.
 - Branch from `dev`, PR into `dev`. Versions are tagged from `master`.
+
+## Licence
+
+MIT: see [LICENSE](LICENSE). Use it in any bot, open or closed source.
