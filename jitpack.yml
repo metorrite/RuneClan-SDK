@@ -1,0 +1,5 @@
+# JitPack builds a tagged release straight from GitHub (SDK 0.x). Java 17 is the SDK's floor.
+jdk:
+  - openjdk17
+install:
+  - mvn -B -DskipTests install
