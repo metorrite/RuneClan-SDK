@@ -11,7 +11,7 @@
     },
     "x-runeclan-source": {
       "repo": "RuneClan-API",
-      "commit": "e9c2c09"
+      "commit": "4f15d19"
     }
   },
   "servers": [
@@ -306,7 +306,12 @@
             }
           }
         },
-        "x-runeclan-audience": "public"
+        "x-runeclan-audience": "public",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ]
       }
     },
     "/v1/apps/requests": {
@@ -859,6 +864,9 @@
               "type": "string",
               "pattern": "^\\d{17,20}$"
             }
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
           }
         ],
         "requestBody": {
@@ -927,6 +935,9 @@
               "type": "string",
               "pattern": "^\\d{17,20}$"
             }
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
           }
         ],
         "x-runeclan-audience": "public"
@@ -985,6 +996,9 @@
               "type": "string",
               "pattern": "^a1_[a-z2-7]{26}$"
             }
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
           }
         ],
         "x-runeclan-audience": "public"
@@ -1041,6 +1055,9 @@
               "type": "string",
               "pattern": "^a1_[a-z2-7]{26}$"
             }
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
           }
         ],
         "x-runeclan-audience": "public"
@@ -1344,7 +1361,12 @@
             }
           }
         },
-        "x-runeclan-audience": "public"
+        "x-runeclan-audience": "public",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ]
       },
       "get": {
         "summary": "Your webhooks",
@@ -1423,6 +1445,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
           }
         ],
         "x-runeclan-audience": "public"
@@ -1470,6 +1495,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
           }
         ],
         "x-runeclan-audience": "public"
@@ -1517,6 +1545,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
           }
         ],
         "x-runeclan-audience": "public"
@@ -1825,6 +1856,165 @@
             "in": "path",
             "required": true,
             "description": "The hub's clan id (uuid)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "x-runeclan-audience": "public"
+      }
+    },
+    "/v1/communities": {
+      "get": {
+        "summary": "List communities that take members",
+        "tags": [
+          "Communities"
+        ],
+        "responses": {
+          "200": {
+            "description": "Up to 500 communities, biggest first",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/CommunityListing"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Refused; see the error code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "426": {
+            "$ref": "#/components/responses/SdkTooOld"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        },
+        "description": "Live community websites that take members (join mode open or request), as the website's community finder lists them. Any key, as reading clans. Off (404) until community sites are switched on in RuneClan Admin > Switches.",
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "x-runeclan-audience": "public"
+      }
+    },
+    "/v1/communities/by-slug/{slug}": {
+      "get": {
+        "summary": "A community by its website address",
+        "tags": [
+          "Communities"
+        ],
+        "responses": {
+          "200": {
+            "description": "The community",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommunityListing"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Refused; see the error code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "426": {
+            "$ref": "#/components/responses/SdkTooOld"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        },
+        "description": "Live community websites only (closed ones too); 404 otherwise. Any key, as reading clans. Off (404) until community sites are switched on in RuneClan Admin > Switches.",
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "The community's address (slug)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "x-runeclan-audience": "public"
+      }
+    },
+    "/v1/communities/{communityId}": {
+      "get": {
+        "summary": "A community and its join rules",
+        "tags": [
+          "Communities"
+        ],
+        "responses": {
+          "200": {
+            "description": "The community",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Community"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Refused; see the error code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "426": {
+            "$ref": "#/components/responses/SdkTooOld"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        },
+        "description": "Any key: only a community whose website the public can see (404 otherwise), never a Discord id. First-party keys see every community, with the site's guildId. A clan website's community is answered too (kind clan). Off (404) until community sites are switched on.",
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "required": true,
+            "description": "The community's id (uuid; communityId on GET /v1/communities or GET /v1/guilds/{guildId}/site)",
             "schema": {
               "type": "string"
             }
@@ -2646,7 +2836,12 @@
             }
           }
         },
-        "x-runeclan-audience": "public"
+        "x-runeclan-audience": "public",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ]
       }
     },
     "/v1/guilds/{guildId}/capabilities": {
@@ -2692,6 +2887,9 @@
               "type": "string",
               "pattern": "^\\d{17,20}$"
             }
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
           }
         ],
         "requestBody": {
@@ -2966,6 +3164,9 @@
               "type": "string",
               "pattern": "^\\d{17,20}$"
             }
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
           }
         ],
         "requestBody": {
@@ -3267,6 +3468,9 @@
               "type": "string",
               "pattern": "^\\d{17,20}$"
             }
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
           }
         ],
         "requestBody": {
@@ -4615,7 +4819,12 @@
             }
           }
         },
-        "x-runeclan-audience": "public"
+        "x-runeclan-audience": "public",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ]
       }
     },
     "/v1/chatheads/{rsn}": {
@@ -9273,6 +9482,9 @@
               "type": "string",
               "pattern": "^\\d{17,20}$"
             }
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
           }
         ],
         "requestBody": {
@@ -10107,6 +10319,20 @@
         }
       }
     },
+    "parameters": {
+      "IdempotencyKey": {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": false,
+        "description": "Makes this write safe to retry: 1 to 255 visible ASCII characters, a new UUID per write. A repeat within 24 hours gets the first 2xx answer again (marked Idempotent-Replayed: true) instead of doing the write twice; the same key on another request is 422 idempotency_key_reused, a repeat while the first still runs is 409 idempotency_in_progress (Retry-After: 1). Refusals and failures are not kept, so a retry after one runs again. An answer showing a secret once (a webhook's signing secret) or over 1 MiB is not stored: a repeat is 409 idempotency_answer_withheld. Headers are not compared. Keys belong to the app.",
+        "schema": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255,
+          "pattern": "^[\\x21-\\x7E]+$"
+        }
+      }
+    },
     "responses": {
       "RateLimited": {
         "description": "429 rate_limited: wait Retry-After seconds",
@@ -10632,6 +10858,97 @@
                 }
               }
             }
+          }
+        }
+      },
+      "Community": {
+        "type": "object",
+        "properties": {
+          "communityId": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "community",
+              "clan"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "joinMode": {
+            "type": "string",
+            "enum": [
+              "open",
+              "request",
+              "closed"
+            ]
+          },
+          "requireLink": {
+            "type": "boolean"
+          },
+          "questions": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "The join form's questions (request communities)"
+          },
+          "clanJoin": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "On a community website: a button to join a clan {on, label, customLabel, target}"
+          },
+          "members": {
+            "type": "integer"
+          },
+          "siteId": {
+            "type": "string"
+          },
+          "slug": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "live": {
+            "type": "boolean"
+          },
+          "guildId": {
+            "type": "string",
+            "description": "First-party keys only: the site's Discord server"
+          }
+        }
+      },
+      "CommunityListing": {
+        "type": "object",
+        "properties": {
+          "communityId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "members": {
+            "type": "integer"
+          },
+          "joinMode": {
+            "type": "string",
+            "enum": [
+              "open",
+              "request",
+              "closed"
+            ]
+          },
+          "requireLink": {
+            "type": "boolean",
+            "description": "Joining needs a RuneLink-linked character"
           }
         }
       },
@@ -16217,6 +16534,13 @@
       ]
     },
     {
+      "code": "bad_idempotency_key",
+      "statuses": [
+        400
+      ],
+      "meaning": "Idempotency-Key must be 1 to 255 visible ASCII characters."
+    },
+    {
       "code": "bad_ids",
       "statuses": [
         400
@@ -16943,6 +17267,27 @@
       "statuses": [
         409
       ]
+    },
+    {
+      "code": "idempotency_answer_withheld",
+      "statuses": [
+        409
+      ],
+      "meaning": "The first request with that Idempotency-Key succeeded; its answer showed a secret once or was too large, so it isn't sent again."
+    },
+    {
+      "code": "idempotency_in_progress",
+      "statuses": [
+        409
+      ],
+      "meaning": "The first request with that Idempotency-Key still runs: wait Retry-After (1 s) and send the same request again."
+    },
+    {
+      "code": "idempotency_key_reused",
+      "statuses": [
+        422
+      ],
+      "meaning": "That Idempotency-Key was sent with another request: use a new key for each different write."
     },
     {
       "code": "if_match_required",

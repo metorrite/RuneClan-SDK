@@ -1,6 +1,8 @@
 package com.runeclans.sdk;
 
 import com.runeclans.sdk.model.Clan;
+import com.runeclans.sdk.model.Community;
+import com.runeclans.sdk.model.CommunityListing;
 import com.runeclans.sdk.model.Me;
 import com.runeclans.sdk.model.Player;
 import com.runeclans.sdk.model.PlayerPage;
@@ -124,6 +126,28 @@ class ClientTest {
         Optional<Clan> clan = connect().clans().byName("Young lings").complete();
         assertEquals("Younglings", clan.orElseThrow().name());
         assertEquals("/v1/clans/by-name/Young%20lings", hub.last().uri().getRawPath());
+    }
+
+    @Test
+    void communitiesAreReadLikeClans() {
+        hub.answer(200, me("", 60, 10))
+                .answer(200, "{\"data\":[{\"communityId\":\"k1\",\"name\":\"Boss Hunters\",\"slug\":\"boss-hunters\",\"members\":3,\"joinMode\":\"request\",\"requireLink\":true}]}")
+                .answer(200, "{\"communityId\":\"k1\",\"name\":\"Boss Hunters\",\"slug\":\"boss-hunters\"}")
+                .answer(200, "{\"communityId\":\"k1\",\"kind\":\"community\",\"name\":\"Boss Hunters\",\"joinMode\":\"request\",\"members\":3,\"live\":true}")
+                .answer(404, "{\"error\":\"not_found\",\"message\":\"Not found\"}");
+        RuneClanClient c = connect();
+        List<CommunityListing> list = c.communities().list().complete();
+        assertEquals("/v1/communities", hub.last().uri().getPath());
+        assertEquals("k1", list.get(0).communityId());
+        assertEquals(3L, list.get(0).members());
+        assertTrue(list.get(0).requireLink());
+        assertEquals("Boss Hunters", c.communities().bySlug("boss-hunters").complete().orElseThrow().name());
+        assertEquals("/v1/communities/by-slug/boss-hunters", hub.last().uri().getPath());
+        Community one = c.communities().get("k1").complete().orElseThrow();
+        assertEquals("/v1/communities/k1", hub.last().uri().getPath());
+        assertEquals("community", one.kind());
+        assertTrue(one.live());
+        assertTrue(c.communities().get("missing").complete().isEmpty(), "404 is empty, as for clans");
     }
 
     @Test
