@@ -27,6 +27,8 @@ public record PlayerStatsBatch(
             Long questsNotStarted,
             /** One of: runemetrics. */
             String source,
+            /** The RS3 account type, from the Ironman and Hardcore Ironman Hiscores (an ex-Hardcore is an ironman; a frozen ironman table is a main) or the Group Ironman hiscores; null until the name's first check. One of: main, ironman, hardcore_ironman, group_ironman, competitive_group_ironman. */
+            String accountType,
             List<SkillsItem> skills
     ) {
         @JsonIgnoreProperties(ignoreUnknown = true)

@@ -11,7 +11,7 @@
     },
     "x-runeclan-source": {
       "repo": "RuneClan-API",
-      "commit": "4f15d19"
+      "commit": "e845b7f"
     }
   },
   "servers": [
@@ -14584,6 +14584,21 @@
                   "enum": [
                     "runemetrics"
                   ]
+                },
+                "accountType": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "enum": [
+                    "main",
+                    "ironman",
+                    "hardcore_ironman",
+                    "group_ironman",
+                    "competitive_group_ironman",
+                    null
+                  ],
+                  "description": "The RS3 account type, from the Ironman and Hardcore Ironman Hiscores (an ex-Hardcore is an ironman; a frozen ironman table is a main) or the Group Ironman hiscores; null until the name's first check."
                 },
                 "skills": {
                   "type": "array",
