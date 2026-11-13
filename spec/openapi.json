@@ -11,7 +11,7 @@
     },
     "x-runeclan-source": {
       "repo": "RuneClan-API",
-      "commit": "691d867"
+      "commit": "bf12905d"
     }
   },
   "servers": [
@@ -2493,6 +2493,137 @@
           }
         },
         "description": "Needs the scope `events:read`. Needs the player's grant covering DROPS and their logs set to public; 404 otherwise, exactly like an unknown player. Read-only. 404 while that hub feature is off.",
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "alias",
+            "in": "path",
+            "required": true,
+            "description": "The player's alias for your app",
+            "schema": {
+              "type": "string",
+              "pattern": "^a1_[a-z2-7]{26}$"
+            }
+          },
+          {
+            "name": "X-Guild-Id",
+            "in": "header",
+            "required": false,
+            "description": "The Discord server the read is for. Required when the player limited their grant to some servers.",
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{17,20}$"
+            }
+          }
+        ],
+        "x-runeclan-audience": "public"
+      }
+    },
+    "/v1/players/{alias}/everything": {
+      "get": {
+        "summary": "Everything about a player in one call: player, logs, XP, events, stats, kill counters, pets and achievement progress",
+        "tags": [
+          "Players"
+        ],
+        "responses": {
+          "200": {
+            "description": "Each part, or null with its reason in missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "alias": {
+                      "type": "string"
+                    },
+                    "player": {
+                      "$ref": "#/components/schemas/Player"
+                    },
+                    "logs": {
+                      "type": "object",
+                      "nullable": true
+                    },
+                    "xp": {
+                      "type": "object",
+                      "nullable": true
+                    },
+                    "events": {
+                      "type": "object",
+                      "nullable": true
+                    },
+                    "stats": {
+                      "type": "object",
+                      "nullable": true
+                    },
+                    "kills": {
+                      "type": "array",
+                      "nullable": true,
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "pets": {
+                      "type": "array",
+                      "nullable": true,
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "progress": {
+                      "type": "array",
+                      "nullable": true,
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "missing": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "part": {
+                            "type": "string"
+                          },
+                          "reason": {
+                            "type": "string",
+                            "enum": [
+                              "missing_scope",
+                              "not_shared",
+                              "not_available",
+                              "no_data",
+                              "unavailable"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Refused; see the error code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "426": {
+            "$ref": "#/components/responses/SdkTooOld"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        },
+        "description": "Needs the scope `players:read`. Each part is read like its own route, so the same privacy holds: logs, xp and events need `events:read` and the categories the player shares with your app (Drops, Skill XP; kills needs Boss kills, pets and progress need Achievements); stats are the latest hiscores of the characters the player route lists (outside apps see only public stats of players who don't hide from leaderboards). A part that can't be shown is null and listed in missing: missing_scope, not_shared, not_available (off, hidden or nothing stored), no_data (shown but empty so far) or unavailable (try again). One call of your rate limit.",
         "security": [
           {
             "apiKey": []
@@ -14598,7 +14729,7 @@
                     "competitive_group_ironman",
                     null
                   ],
-                  "description": "The RS3 account type, from the Ironman and Hardcore Ironman Hiscores: an ex-Hardcore (Jagex's death record) is an ironman, an Ironman who left the mode is a main. null until the name's first check. A Group Ironman is only on the main Hiscores, so main is published only once the hub's Group Ironman poll runs (until then a name that is neither an ironman nor a hardcore answers null); group_ironman and competitive_group_ironman come from that poll."
+                  "description": "The RS3 account type, from the Ironman and Hardcore Ironman Hiscores: an ex-Hardcore (Jagex's death record) is an ironman, an Ironman who left the mode is a main. null until the name's first check. A Group Ironman is only on the main Hiscores, so until the hub's Group Ironman poll runs main means on neither the Ironman nor the Hardcore table and may include Group Ironmen; group_ironman and competitive_group_ironman come from that poll."
                 },
                 "skills": {
                   "type": "array",
@@ -16689,6 +16820,12 @@
     },
     {
       "code": "bad_option",
+      "statuses": [
+        400
+      ]
+    },
+    {
+      "code": "bad_order",
       "statuses": [
         400
       ]
