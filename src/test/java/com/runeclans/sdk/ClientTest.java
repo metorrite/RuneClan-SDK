@@ -6,6 +6,7 @@ import com.runeclans.sdk.model.CommunityListing;
 import com.runeclans.sdk.model.Me;
 import com.runeclans.sdk.model.Player;
 import com.runeclans.sdk.model.PlayerPage;
+import com.runeclans.sdk.model.RankingPage;
 import com.runeclans.sdk.testing.FakeTransport;
 import org.junit.jupiter.api.Test;
 
@@ -148,6 +149,28 @@ class ClientTest {
         assertEquals("community", one.kind());
         assertTrue(one.live());
         assertTrue(c.communities().get("missing").complete().isEmpty(), "404 is empty, as for clans");
+    }
+
+    @Test
+    void statsRankingsSendTheirQuery() {
+        hub.answer(200, me("", 60, 10))
+                .answer(200, "{\"entity\":\"clan\",\"metric\":\"gained\",\"total\":1,\"period\":{\"key\":\"custom\",\"from\":\"2026-11-01\",\"to\":\"2026-11-07\"},"
+                        + "\"entries\":[{\"rank\":1,\"slug\":\"younglings\",\"name\":\"Younglings\",\"members\":40,\"gained\":123456}],\"found\":null}")
+                .answer(200, "{\"entries\":[{\"rank\":1,\"rsn\":\"Ann\",\"gained\":400}]}")
+                .answer(200, "{\"kind\":\"week\",\"entries\":[{\"rank\":1,\"rsn\":\"Ann\",\"gained\":1500,\"start\":\"2026-11-11\",\"end\":\"2026-11-17\"}]}")
+                .answer(200, "{\"skills\":29,\"entries\":[{\"rank\":1,\"rsn\":\"Ann\",\"rankSum\":30}]}");
+        RuneClanClient c = connect();
+        RankingPage page = c.stats().rankings(new Stats.Query().entity("clan").metric("gained").custom("2026-11-01", "2026-11-07").limit(10)).complete();
+        assertEquals("/v1/stats/rankings", hub.last().uri().getPath());
+        String q = hub.last().uri().getQuery();
+        assertTrue(q.contains("entity=clan") && q.contains("period=custom") && q.contains("from=2026-11-01") && q.contains("limit=10"), q);
+        assertEquals(123456L, page.entries().get(0).gained());
+        assertEquals("2026-11-07", page.period().to());
+        assertEquals(400L, c.stats().gainers("hour", null).complete().entries().get(0).gained());
+        assertEquals("/v1/stats/gainers", hub.last().uri().getPath());
+        assertEquals("2026-11-17", c.stats().records("overall", "week", null, null, null).complete().entries().get(0).end());
+        assertEquals(30L, c.stats().rankSummary("ironman", null, null).complete().entries().get(0).rankSum());
+        assertEquals("accountType=ironman", hub.last().uri().getQuery());
     }
 
     @Test

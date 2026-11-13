@@ -104,6 +104,11 @@ public final class RuneClanClient implements AutoCloseable {
         return new Communities(this);
     }
 
+    /** The Stats rankings: hiscores, top gainers, XP records and the rank summary. */
+    public Stats stats() {
+        return new Stats(this);
+    }
+
     /** Published sites, clan and community alike, by their address. */
     public Sites sites() {
         return new Sites(this);

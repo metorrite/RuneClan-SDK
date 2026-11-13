@@ -160,6 +160,14 @@ public final class Routes {
     public static final Route GET_DIRECTORY_TOP_PLAYERS = new Route("GET", "/v1/directory/top-players", List.of(), true, "application/json", null);
     /** Clan-versus-clan leaderboards: XP each listed, opted-in clan gained */
     public static final Route GET_DIRECTORY_LEADERBOARDS = new Route("GET", "/v1/directory/leaderboards", List.of(), true, "application/json", null);
+    /** Stats hiscores: players, clans or communities by level, XP or XP gained */
+    public static final Route GET_STATS_RANKINGS = new Route("GET", "/v1/stats/rankings", List.of(), true, "application/json", com.runeclans.sdk.model.RankingPage.class);
+    /** Top gainers: the most XP gained in the last hour, today, this week or this month */
+    public static final Route GET_STATS_GAINERS = new Route("GET", "/v1/stats/gainers", List.of(), true, "application/json", com.runeclans.sdk.model.RankingPage.class);
+    /** XP records: each player's best day, week or month in one skill */
+    public static final Route GET_STATS_RECORDS = new Route("GET", "/v1/stats/records", List.of(), true, "application/json", com.runeclans.sdk.model.XpRecordPage.class);
+    /** Rank summary: each player's ranks in the 29 skills summed (lower is better) */
+    public static final Route GET_STATS_RANK_SUMMARY = new Route("GET", "/v1/stats/rank-summary", List.of(), true, "application/json", com.runeclans.sdk.model.RankSummaryPage.class);
     /** A clan's events */
     public static final Route GET_CLANS_CLAN_ID_EVENTS = new Route("GET", "/v1/clans/{clanId}/events", List.of(), true, "application/json", com.runeclans.sdk.model.EventList.class);
     /** The clan's upcoming events as a calendar */
@@ -362,6 +370,10 @@ public final class Routes {
             GET_CHATHEADS_RSN,
             GET_DIRECTORY_TOP_PLAYERS,
             GET_DIRECTORY_LEADERBOARDS,
+            GET_STATS_RANKINGS,
+            GET_STATS_GAINERS,
+            GET_STATS_RECORDS,
+            GET_STATS_RANK_SUMMARY,
             GET_CLANS_CLAN_ID_EVENTS,
             GET_CLANS_CLAN_ID_EVENTS_CALENDAR_ICS,
             GET_CLANS_CLAN_ID_COHOST_INVITES,
