@@ -92,6 +92,8 @@ public final class Routes {
     public static final Route GET_LOGS_CATALOGUE = new Route("GET", "/v1/logs/catalogue", List.of(), true, "application/json", com.runeclans.sdk.model.LogsCatalogue.class);
     /** A player's logs (drop log, clue log, pets, kill counts) for their default character */
     public static final Route GET_PLAYERS_ALIAS_LOGS = new Route("GET", "/v1/players/{alias}/logs", List.of("events:read"), true, "application/json", com.runeclans.sdk.model.PlayerLogs.class);
+    /** Everything about a player in one call: player, logs, XP, events, stats, kill counters, pets and achievement progress */
+    public static final Route GET_PLAYERS_ALIAS_EVERYTHING = new Route("GET", "/v1/players/{alias}/everything", List.of("players:read"), true, "application/json", null);
     /** The guild's drop-log race: boss-log items, pets and complete logs per member */
     public static final Route GET_GUILDS_GUILD_ID_LOGS_RACE = new Route("GET", "/v1/guilds/{guildId}/logs/race", List.of("events:read"), true, "application/json", com.runeclans.sdk.model.LogsRace.class);
     /** A site picture's bytes, by its token */
@@ -332,6 +334,7 @@ public final class Routes {
             GET_TEMPLATES_ID,
             GET_LOGS_CATALOGUE,
             GET_PLAYERS_ALIAS_LOGS,
+            GET_PLAYERS_ALIAS_EVERYTHING,
             GET_GUILDS_GUILD_ID_LOGS_RACE,
             GET_IMAGES_TOKEN,
             GET_CLANS_CLAN_ID_FEATURES,
