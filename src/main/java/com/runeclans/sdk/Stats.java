@@ -29,8 +29,8 @@ public final class Stats {
         public Query skill(String skill) { this.skill = skill; return this; }
         /** level (default), xp or gained. */
         public Query metric(String metric) { this.metric = metric; return this; }
-        /** For gained: hour, today, yesterday, week, month, year, or a recap period such as last-week or 2026-09. */
-        public Query period(String period) { this.period = period; return this; }
+        /** For gained: hour, today, yesterday, week, month, year, or a recap period such as last-week or 2026-09. Clears {@link #custom} days. */
+        public Query period(String period) { this.period = period; this.from = null; this.to = null; return this; }
         /** For gained over chosen days: first and last day (YYYY-MM-DD, at most 366 days). */
         public Query custom(String from, String to) { this.period = "custom"; this.from = from; this.to = to; return this; }
         public Query accountType(String accountType) { this.accountType = accountType; return this; }
@@ -48,21 +48,33 @@ public final class Stats {
                 .query("find", x.find).as(RankingPage.class);
     }
 
-    /** {@code GET /v1/stats/gainers}: {@code period} hour, day (default), week or month; the query's metric and custom days are ignored. */
+    /**
+     * {@code GET /v1/stats/gainers}: {@code period} hour, day (default), week or month; null takes the query's period. The query's metric and
+     * custom days are ignored.
+     */
     public ApiAction<RankingPage> gainers(String period, Query q) {
         Query x = q == null ? new Query() : q;
-        return c.route(Routes.GET_STATS_GAINERS).query("period", period).query("entity", x.entity).query("skill", x.skill).query("accountType", x.accountType)
-                .query("limit", x.limit).query("offset", x.offset).query("find", x.find).as(RankingPage.class);
+        return c.route(Routes.GET_STATS_GAINERS).query("period", period != null ? period : x.period).query("entity", x.entity).query("skill", x.skill)
+                .query("accountType", x.accountType).query("limit", x.limit).query("offset", x.offset).query("find", x.find).as(RankingPage.class);
     }
 
-    /** {@code GET /v1/stats/records}: each player's best day, week or month ({@code kind}) in a skill. Null arguments take the defaults. */
-    public ApiAction<XpRecordPage> records(String skill, String kind, String accountType, Integer limit, Integer offset) {
-        return c.route(Routes.GET_STATS_RECORDS).query("skill", skill).query("kind", kind).query("accountType", accountType).query("limit", limit)
-                .query("offset", offset).as(XpRecordPage.class);
+    /**
+     * {@code GET /v1/stats/records}: each player's best day (default), week or month ({@code kind}) in a skill. The query's skill, accountType,
+     * limit, offset and find are used; its entity, metric and period are ignored.
+     */
+    public ApiAction<XpRecordPage> records(String kind, Query q) {
+        Query x = q == null ? new Query() : q;
+        return c.route(Routes.GET_STATS_RECORDS).query("skill", x.skill).query("kind", kind).query("accountType", x.accountType).query("limit", x.limit)
+                .query("offset", x.offset).query("find", x.find).as(XpRecordPage.class);
     }
 
-    /** {@code GET /v1/stats/rank-summary}: each player's ranks in the 29 skills summed, lowest first. */
-    public ApiAction<RankSummaryPage> rankSummary(String accountType, Integer limit, Integer offset) {
-        return c.route(Routes.GET_STATS_RANK_SUMMARY).query("accountType", accountType).query("limit", limit).query("offset", offset).as(RankSummaryPage.class);
+    /**
+     * {@code GET /v1/stats/rank-summary}: each player's ranks in the 29 skills summed, lowest first. The query's accountType, limit, offset and
+     * find are used; the rest is ignored.
+     */
+    public ApiAction<RankSummaryPage> rankSummary(Query q) {
+        Query x = q == null ? new Query() : q;
+        return c.route(Routes.GET_STATS_RANK_SUMMARY).query("accountType", x.accountType).query("limit", x.limit).query("offset", x.offset)
+                .query("find", x.find).as(RankSummaryPage.class);
     }
 }

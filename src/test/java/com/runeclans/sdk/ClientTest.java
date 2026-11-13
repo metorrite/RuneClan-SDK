@@ -151,26 +151,74 @@ class ClientTest {
         assertTrue(c.communities().get("missing").complete().isEmpty(), "404 is empty, as for clans");
     }
 
+    private static Map<String, String> query(Transport.Request r) {
+        Map<String, String> out = new java.util.TreeMap<>();
+        String raw = r.uri().getRawQuery();
+        if (raw == null) return out;
+        for (String pair : raw.split("&")) {
+            int eq = pair.indexOf('=');
+            out.put(pair.substring(0, eq), pair.substring(eq + 1));
+        }
+        return out;
+    }
+
     @Test
     void statsRankingsSendTheirQuery() {
         hub.answer(200, me("", 60, 10))
                 .answer(200, "{\"entity\":\"clan\",\"metric\":\"gained\",\"total\":1,\"period\":{\"key\":\"custom\",\"from\":\"2026-11-01\",\"to\":\"2026-11-07\"},"
-                        + "\"entries\":[{\"rank\":1,\"slug\":\"younglings\",\"name\":\"Younglings\",\"members\":40,\"gained\":123456}],\"found\":null}")
-                .answer(200, "{\"entries\":[{\"rank\":1,\"rsn\":\"Ann\",\"gained\":400}]}")
-                .answer(200, "{\"kind\":\"week\",\"entries\":[{\"rank\":1,\"rsn\":\"Ann\",\"gained\":1500,\"start\":\"2026-11-11\",\"end\":\"2026-11-17\"}]}")
-                .answer(200, "{\"skills\":29,\"entries\":[{\"rank\":1,\"rsn\":\"Ann\",\"rankSum\":30}]}");
+                        + "\"entries\":[{\"rank\":1,\"slug\":\"younglings\",\"name\":\"Younglings\",\"members\":40,\"gained\":123456},{\"rank\":2,\"slug\":\"other\"}],\"found\":null}")
+                .answer(200, "{\"entries\":[]}");
         RuneClanClient c = connect();
-        RankingPage page = c.stats().rankings(new Stats.Query().entity("clan").metric("gained").custom("2026-11-01", "2026-11-07").limit(10)).complete();
+        RankingPage page = c.stats().rankings(new Stats.Query().entity("clan").skill("attack").metric("gained").custom("2026-11-01", "2026-11-07")
+                .accountType("ironman").limit(10).offset(20).find("A b&c")).complete();
         assertEquals("/v1/stats/rankings", hub.last().uri().getPath());
-        String q = hub.last().uri().getQuery();
-        assertTrue(q.contains("entity=clan") && q.contains("period=custom") && q.contains("from=2026-11-01") && q.contains("limit=10"), q);
+        assertEquals(Map.of("entity", "clan", "skill", "attack", "metric", "gained", "period", "custom", "from", "2026-11-01", "to", "2026-11-07",
+                "accountType", "ironman", "limit", "10", "offset", "20", "find", "A%20b%26c"), query(hub.last()));
         assertEquals(123456L, page.entries().get(0).gained());
+        assertNull(page.entries().get(1).gained(), "a missing figure decodes as null");
         assertEquals("2026-11-07", page.period().to());
-        assertEquals(400L, c.stats().gainers("hour", null).complete().entries().get(0).gained());
+
+        c.stats().rankings(new Stats.Query().custom("2026-11-01", "2026-11-07").period("week")).complete();
+        assertEquals(Map.of("period", "week"), query(hub.last()), "a named period drops the custom days");
+    }
+
+    @Test
+    void statsGainersSendTheirQuery() {
+        hub.answer(200, me("", 60, 10))
+                .answer(200, "{\"entries\":[{\"rank\":1,\"rsn\":\"Ann\",\"gained\":400}]}")
+                .answer(200, "{\"entries\":[]}");
+        RuneClanClient c = connect();
+        assertEquals(400L, c.stats().gainers("hour", new Stats.Query().entity("community").skill("slayer").metric("xp").accountType("main").limit(5)
+                .offset(5).find("A b&c")).complete().entries().get(0).gained());
         assertEquals("/v1/stats/gainers", hub.last().uri().getPath());
-        assertEquals("2026-11-17", c.stats().records("overall", "week", null, null, null).complete().entries().get(0).end());
-        assertEquals(30L, c.stats().rankSummary("ironman", null, null).complete().entries().get(0).rankSum());
-        assertEquals("accountType=ironman", hub.last().uri().getQuery());
+        assertEquals(Map.of("period", "hour", "entity", "community", "skill", "slayer", "accountType", "main", "limit", "5", "offset", "5",
+                "find", "A%20b%26c"), query(hub.last()), "metric is not sent");
+        c.stats().gainers(null, new Stats.Query().period("week")).complete();
+        assertEquals(Map.of("period", "week"), query(hub.last()), "a null period takes the query's");
+    }
+
+    @Test
+    void statsRecordsSendTheirQuery() {
+        hub.answer(200, me("", 60, 10))
+                .answer(200, "{\"kind\":\"week\",\"entries\":[{\"rank\":1,\"rsn\":\"Ann\",\"gained\":1500,\"start\":\"2026-11-11\",\"end\":\"2026-11-17\"}]}");
+        assertEquals("2026-11-17", connect().stats().records("week", new Stats.Query().skill("overall").accountType("ironman").limit(3).offset(6)
+                .find("A b&c")).complete().entries().get(0).end());
+        assertEquals("/v1/stats/records", hub.last().uri().getPath());
+        assertEquals(Map.of("kind", "week", "skill", "overall", "accountType", "ironman", "limit", "3", "offset", "6", "find", "A%20b%26c"),
+                query(hub.last()));
+    }
+
+    @Test
+    void statsRankSummarySendsItsQuery() {
+        hub.answer(200, me("", 60, 10))
+                .answer(200, "{\"skills\":29,\"entries\":[{\"rank\":1,\"rsn\":\"Ann\",\"rankSum\":30}]}")
+                .answer(200, "{\"skills\":29,\"entries\":[]}");
+        RuneClanClient c = connect();
+        assertEquals(30L, c.stats().rankSummary(new Stats.Query().accountType("ironman").limit(2).offset(4).find("A b&c")).complete().entries().get(0).rankSum());
+        assertEquals("/v1/stats/rank-summary", hub.last().uri().getPath());
+        assertEquals(Map.of("accountType", "ironman", "limit", "2", "offset", "4", "find", "A%20b%26c"), query(hub.last()));
+        c.stats().rankSummary(null).complete();
+        assertEquals(Map.of(), query(hub.last()));
     }
 
     @Test
