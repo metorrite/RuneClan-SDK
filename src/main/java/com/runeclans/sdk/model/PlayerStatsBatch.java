@@ -27,7 +27,7 @@ public record PlayerStatsBatch(
             Long questsNotStarted,
             /** One of: runemetrics. */
             String source,
-            /** The RS3 account type, from the Ironman and Hardcore Ironman Hiscores (an ex-Hardcore is an ironman; a frozen ironman table is a main) or the Group Ironman hiscores; null until the name's first check. One of: main, ironman, hardcore_ironman, group_ironman, competitive_group_ironman. */
+            /** The RS3 account type, from the Ironman and Hardcore Ironman Hiscores: an ex-Hardcore (Jagex's death record) is an ironman, an Ironman who left the mode is a main. null until the name's first check. A Group Ironman is only on the main Hiscores, so main is published only once the hub's Group Ironman poll runs (until then a name that is neither an ironman nor a hardcore answers null); group_ironman and competitive_group_ironman come from that poll. One of: main, ironman, hardcore_ironman, group_ironman, competitive_group_ironman. */
             String accountType,
             List<SkillsItem> skills
     ) {
