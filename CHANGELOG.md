@@ -20,3 +20,5 @@ First release from this repository (0.1.0 lived inside the hub and was never pub
 - `FakeTransport` and a `Ticker` seam for tests.
 - `communities()`: `list()`, `bySlug(slug)` and `get(communityId)`, read with any key as `clans()` (needs the hub's public community
   routes). The spec now also carries the hub's `Idempotency-Key` header on keyed writes.
+- `communities().stats(community, GroupStatsQuery)`, `dailyGains`, `recap` and `activity`: a community's stats page by id or address
+  (overview, member list with level, XP and gains, XP per day, recap, recent log lines), any key; needs the hub's T-1109 routes.

@@ -75,7 +75,7 @@ FeedPage feed = hub.feed().after(savedCursor, 100).complete();
 
 What's there: `players()` (list, get, by Discord id, by RSN, events, XP, logs, stats), `guilds()` (register, members, players, events),
 `feed()`, `webhooks()` (create, list, delete, ping, resume, and `Webhooks.verify` for deliveries), `clans()` (search, by name, events,
-site, leagues, polls, signups, features), `communities()` (the community finder's list, by address, by id with join rules),
+site, leagues, polls, signups, features), `communities()` (the community finder's list, by address, by id with join rules, and each community's stats page),
 `sites()` (clan and community sites by address), `events()` (shared events, one event,
 participants, standings, board) and `directory()` (the public clan list).
 

@@ -284,6 +284,14 @@ public final class Routes {
     public static final Route GET_EVENTS_EVENT_ID_BINGO_TILE_HINTS = new Route("GET", "/v1/events/{eventId}/bingo/tile-hints", List.of(), true, "application/json", com.runeclans.sdk.model.BingoTileHints.class);
     /** Whether RuneSync can tick a tile label by itself (no event yet) */
     public static final Route GET_BINGO_TILE_HINTS = new Route("GET", "/v1/bingo/tile-hints", List.of(), true, "application/json", com.runeclans.sdk.model.BingoTileHints.class);
+    /** A community's stats: overview and member list */
+    public static final Route GET_COMMUNITIES_COMMUNITY_STATS = new Route("GET", "/v1/communities/{community}/stats", List.of(), true, "application/json", com.runeclans.sdk.model.GroupStatsPage.class);
+    /** A community's XP gained per UTC day */
+    public static final Route GET_COMMUNITIES_COMMUNITY_STATS_DAILY = new Route("GET", "/v1/communities/{community}/stats/daily", List.of(), true, "application/json", com.runeclans.sdk.model.GroupStatsDaily.class);
+    /** A community's recap over a period */
+    public static final Route GET_COMMUNITIES_COMMUNITY_STATS_RECAP = new Route("GET", "/v1/communities/{community}/stats/recap", List.of(), true, "application/json", com.runeclans.sdk.model.GroupStatsRecap.class);
+    /** A community's recent Adventurer's Log lines */
+    public static final Route GET_COMMUNITIES_COMMUNITY_STATS_ACTIVITY = new Route("GET", "/v1/communities/{community}/stats/activity", List.of(), true, "application/json", com.runeclans.sdk.model.GroupStatsActivity.class);
 
     /** Every route above, in spec order. */
     public static final List<Route> ALL = List.of(
@@ -423,5 +431,9 @@ public final class Routes {
             GET_EVENTS_EVENT_ID_WORKSPACE,
             GET_BINGO_LAYOUTS,
             GET_EVENTS_EVENT_ID_BINGO_TILE_HINTS,
-            GET_BINGO_TILE_HINTS);
+            GET_BINGO_TILE_HINTS,
+            GET_COMMUNITIES_COMMUNITY_STATS,
+            GET_COMMUNITIES_COMMUNITY_STATS_DAILY,
+            GET_COMMUNITIES_COMMUNITY_STATS_RECAP,
+            GET_COMMUNITIES_COMMUNITY_STATS_ACTIVITY);
 }

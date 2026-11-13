@@ -11,7 +11,7 @@
     },
     "x-runeclan-source": {
       "repo": "RuneClan-API",
-      "commit": "4f15d19"
+      "commit": "d04c19ab"
     }
   },
   "servers": [
@@ -10290,6 +10290,376 @@
         ],
         "x-runeclan-audience": "public"
       }
+    },
+    "/v1/communities/{community}/stats": {
+      "get": {
+        "summary": "A community's stats: overview and member list",
+        "tags": [
+          "Stats"
+        ],
+        "responses": {
+          "200": {
+            "description": "The overview and one page of members",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupStatsPage"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Refused; see the error code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "426": {
+            "$ref": "#/components/responses/SdkTooOld"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        },
+        "description": "Any app key. Only communities whose website is live for the public answer; others (and every route while community sites are off) 404. Counted: a community's every active linked character of each current member (a clan: its fetched roster). Players hidden from leaderboards on any server, or opted out of polling, are never counted, listed or summed. Figures are the Stats rankings' (GET /v1/stats/rankings): rolled up every 2 minutes, cached 2 minutes. Opening it queues a first poll for counted characters the hub never polled (at most 25 at once, once per 10 minutes per community; tracking.queued says how many). Characters without stats yet are listed last with pending true.",
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "community",
+            "in": "path",
+            "required": true,
+            "description": "The community's id (uuid) or its website address (slug)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "skill",
+            "in": "query",
+            "required": false,
+            "description": "overall (default), a skill name (attack, runecrafting, necromancy...) or id 0-28",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "description": "hour, today (default for none: week), yesterday, week (the Citadel week so far), month, year, custom (with from and to), or a recap period: last-week, last-month, last-year, last-7d..last-365d, 2026, 2026-09, all",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "description": "custom only: first day, YYYY-MM-DD",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "description": "custom only: last day, YYYY-MM-DD (inclusive, at most 366 days)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "description": "xp (default), level, gained or rsn",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "required": false,
+            "description": "desc (default; asc for rsn) or asc",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "1 to 500, default 100",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "description": "0 to 100000, default 0",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000
+            }
+          }
+        ],
+        "x-runeclan-audience": "public"
+      }
+    },
+    "/v1/communities/{community}/stats/daily": {
+      "get": {
+        "summary": "A community's XP gained per UTC day",
+        "tags": [
+          "Stats"
+        ],
+        "responses": {
+          "200": {
+            "description": "One point per day, oldest first",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupStatsDaily"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Refused; see the error code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "426": {
+            "$ref": "#/components/responses/SdkTooOld"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        },
+        "description": "Any app key. Only communities whose website is live for the public answer; others (and every route while community sites are off) 404. A day counts for a character when it also has a reading on the day before (the rankings' rule).",
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "community",
+            "in": "path",
+            "required": true,
+            "description": "The community's id (uuid) or its website address (slug)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "skill",
+            "in": "query",
+            "required": false,
+            "description": "overall (default), a skill name or id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "days",
+            "in": "query",
+            "required": false,
+            "description": "1 to 366, default 30",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 366
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "description": "First day, YYYY-MM-DD (default: days - 1 days ago)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "x-runeclan-audience": "public"
+      }
+    },
+    "/v1/communities/{community}/stats/recap": {
+      "get": {
+        "summary": "A community's recap over a period",
+        "tags": [
+          "Stats"
+        ],
+        "responses": {
+          "200": {
+            "description": "XP gained, active members, boss kills, level-ups, joins and leaves, top gainers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupStatsRecap"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Refused; see the error code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "426": {
+            "$ref": "#/components/responses/SdkTooOld"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        },
+        "description": "Any app key. Only communities whose website is live for the public answer; others (and every route while community sites are off) 404. The clan recap's shape, with members.joined/left from the community's own memberships.",
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "community",
+            "in": "path",
+            "required": true,
+            "description": "The community's id (uuid) or its website address (slug)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "description": "hour, today (default for none: week), yesterday, week (the Citadel week so far), month, year, custom (with from and to), or a recap period: last-week, last-month, last-year, last-7d..last-365d, 2026, 2026-09, all",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "description": "custom only: first day, YYYY-MM-DD",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "description": "custom only: last day, YYYY-MM-DD (inclusive, at most 366 days)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "x-runeclan-audience": "public"
+      }
+    },
+    "/v1/communities/{community}/stats/activity": {
+      "get": {
+        "summary": "A community's recent Adventurer's Log lines",
+        "tags": [
+          "Stats"
+        ],
+        "responses": {
+          "200": {
+            "description": "Newest first",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupStatsActivity"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Refused; see the error code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "426": {
+            "$ref": "#/components/responses/SdkTooOld"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        },
+        "description": "Any app key. Only communities whose website is live for the public answer; others (and every route while community sites are off) 404. Players who hid their adventure log (or hid from leaderboards) anywhere have no lines here.",
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "community",
+            "in": "path",
+            "required": true,
+            "description": "The community's id (uuid) or its website address (slug)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "1 to 200, default 50",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200
+            }
+          },
+          {
+            "name": "days",
+            "in": "query",
+            "required": false,
+            "description": "Lines recorded in the last 1 to 400 days, default 30",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 400
+            }
+          }
+        ],
+        "x-runeclan-audience": "public"
+      }
     }
   },
   "components": {
@@ -13701,6 +14071,454 @@
           }
         }
       },
+      "GroupStatsActivity": {
+        "type": "object",
+        "properties": {
+          "community": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "slug": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "clan": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "slug": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "since": {
+            "type": "string"
+          },
+          "generatedAt": {
+            "type": "string"
+          },
+          "activities": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer"
+                },
+                "rsn": {
+                  "type": "string"
+                },
+                "date": {
+                  "type": "string"
+                },
+                "text": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "occurredAt": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "recordedAt": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "GroupStatsDaily": {
+        "type": "object",
+        "properties": {
+          "community": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "slug": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "clan": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "slug": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "skill": {
+            "type": "string"
+          },
+          "from": {
+            "type": "string"
+          },
+          "to": {
+            "type": "string"
+          },
+          "days": {
+            "type": "integer"
+          },
+          "characters": {
+            "type": "integer"
+          },
+          "total": {
+            "type": "integer"
+          },
+          "points": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "day": {
+                  "type": "string"
+                },
+                "gained": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "generatedAt": {
+            "type": "string"
+          }
+        }
+      },
+      "GroupStatsPage": {
+        "type": "object",
+        "properties": {
+          "community": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "slug": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "clan": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "slug": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "skill": {
+            "type": "string"
+          },
+          "period": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              },
+              "from": {
+                "type": "string",
+                "description": "First UTC day"
+              },
+              "to": {
+                "type": "string",
+                "description": "Last UTC day"
+              },
+              "fromAt": {
+                "type": "string"
+              },
+              "toAt": {
+                "type": "string"
+              }
+            }
+          },
+          "overview": {
+            "type": "object",
+            "properties": {
+              "members": {
+                "type": "integer",
+                "description": "Communities: people"
+              },
+              "characters": {
+                "type": "integer"
+              },
+              "pendingCharacters": {
+                "type": "integer"
+              },
+              "level": {
+                "type": "integer",
+                "description": "Sum of levels (total level for overall)"
+              },
+              "xp": {
+                "type": "integer"
+              },
+              "gained": {
+                "type": "object",
+                "properties": {
+                  "today": {
+                    "type": "integer"
+                  },
+                  "week": {
+                    "type": "integer"
+                  },
+                  "month": {
+                    "type": "integer"
+                  },
+                  "period": {
+                    "type": "integer"
+                  }
+                }
+              },
+              "gainersInPeriod": {
+                "type": "integer"
+              }
+            }
+          },
+          "sort": {
+            "type": "string"
+          },
+          "order": {
+            "type": "string"
+          },
+          "total": {
+            "type": "integer"
+          },
+          "offset": {
+            "type": "integer"
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "entries": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "rank": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
+                },
+                "rsn": {
+                  "type": "string"
+                },
+                "displayName": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "The Discord name the player chose to show on their profile (communities only)"
+                },
+                "accountType": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "level": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
+                },
+                "xp": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
+                },
+                "gained": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
+                },
+                "updatedAt": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "pending": {
+                  "type": "boolean",
+                  "description": "No stats yet"
+                }
+              }
+            }
+          },
+          "generatedAt": {
+            "type": "string"
+          },
+          "tracking": {
+            "type": "object",
+            "properties": {
+              "queued": {
+                "type": "integer",
+                "description": "First polls queued by this open"
+              }
+            }
+          }
+        }
+      },
+      "GroupStatsRecap": {
+        "type": "object",
+        "properties": {
+          "community": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "slug": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "period": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              },
+              "from": {
+                "type": "string",
+                "description": "First UTC day"
+              },
+              "to": {
+                "type": "string",
+                "description": "Last UTC day"
+              },
+              "fromAt": {
+                "type": "string"
+              },
+              "toAt": {
+                "type": "string"
+              }
+            }
+          },
+          "xp": {
+            "type": "object",
+            "properties": {
+              "total": {
+                "type": "integer"
+              }
+            }
+          },
+          "activeMembers": {
+            "type": "integer"
+          },
+          "activity": {
+            "type": "object",
+            "properties": {
+              "bossKills": {
+                "type": "integer"
+              },
+              "levelUps": {
+                "type": "integer"
+              }
+            }
+          },
+          "members": {
+            "type": "object",
+            "properties": {
+              "joined": {
+                "type": "integer"
+              },
+              "left": {
+                "type": "integer"
+              }
+            }
+          },
+          "topGainers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "rsn": {
+                  "type": "string"
+                },
+                "xp": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      },
       "Guild": {
         "type": "object",
         "properties": {
@@ -16276,6 +17094,12 @@
       ]
     },
     {
+      "code": "bad_account_type",
+      "statuses": [
+        400
+      ]
+    },
+    {
       "code": "bad_achievement",
       "statuses": [
         400
@@ -16474,6 +17298,12 @@
       ]
     },
     {
+      "code": "bad_entity",
+      "statuses": [
+        400
+      ]
+    },
+    {
       "code": "bad_entry",
       "statuses": [
         400
@@ -16631,6 +17461,12 @@
       ]
     },
     {
+      "code": "bad_metric",
+      "statuses": [
+        400
+      ]
+    },
+    {
       "code": "bad_mode",
       "statuses": [
         400
@@ -16650,6 +17486,12 @@
     },
     {
       "code": "bad_option",
+      "statuses": [
+        400
+      ]
+    },
+    {
+      "code": "bad_order",
       "statuses": [
         400
       ]
@@ -16806,6 +17648,12 @@
     },
     {
       "code": "bad_since",
+      "statuses": [
+        400
+      ]
+    },
+    {
+      "code": "bad_skill",
       "statuses": [
         400
       ]

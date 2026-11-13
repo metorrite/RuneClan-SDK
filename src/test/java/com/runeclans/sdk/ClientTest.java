@@ -3,6 +3,7 @@ package com.runeclans.sdk;
 import com.runeclans.sdk.model.Clan;
 import com.runeclans.sdk.model.Community;
 import com.runeclans.sdk.model.CommunityListing;
+import com.runeclans.sdk.model.GroupStatsPage;
 import com.runeclans.sdk.model.Me;
 import com.runeclans.sdk.model.Player;
 import com.runeclans.sdk.model.PlayerPage;
@@ -148,6 +149,35 @@ class ClientTest {
         assertEquals("community", one.kind());
         assertTrue(one.live());
         assertTrue(c.communities().get("missing").complete().isEmpty(), "404 is empty, as for clans");
+    }
+
+    @Test
+    void communityStatsPagesTakeTheirQuery() {
+        hub.answer(200, me("", 60, 10))
+                .answer(200, "{\"community\":{\"id\":\"k1\",\"slug\":\"boss-hunters\",\"name\":\"Boss Hunters\"},\"skill\":\"overall\","
+                        + "\"period\":{\"key\":\"today\",\"label\":\"Today\",\"from\":\"2026-11-13\",\"to\":\"2026-11-13\"},"
+                        + "\"overview\":{\"members\":3,\"characters\":4,\"pendingCharacters\":1,\"level\":5000,\"xp\":1750000,\"gained\":{\"today\":150000,\"week\":150000,\"month\":150000,\"period\":150000},\"gainersInPeriod\":2},"
+                        + "\"total\":5,\"offset\":0,\"limit\":2,\"entries\":[{\"rank\":1,\"rsn\":\"Alice\",\"displayName\":\"alice.rs\",\"accountType\":null,\"level\":2000,\"xp\":1000000,\"gained\":100000,\"pending\":false}],"
+                        + "\"tracking\":{\"queued\":0}}")
+                .answer(200, "{\"points\":[{\"day\":\"2026-11-13\",\"gained\":150000}],\"total\":150000}")
+                .answer(200, "{\"activeMembers\":2,\"members\":{\"joined\":5,\"left\":0},\"topGainers\":[{\"rsn\":\"Alice\",\"xp\":100000}]}")
+                .answer(200, "{\"activities\":[{\"id\":7,\"rsn\":\"Alice\",\"text\":\"I killed a Vorago.\"}]}")
+                .answer(404, "{\"error\":\"not_found\",\"message\":\"Not found\"}");
+        RuneClanClient c = connect();
+        GroupStatsPage page = c.communities().stats("boss-hunters", GroupStatsQuery.defaults().withPeriod("today").withSort("gained", null).withPage(2, 0)).complete().orElseThrow();
+        assertEquals("/v1/communities/boss-hunters/stats", hub.last().uri().getPath());
+        String q = hub.last().uri().getRawQuery();
+        assertTrue(q.contains("period=today") && q.contains("sort=gained") && q.contains("limit=2") && q.contains("offset=0"), q);
+        assertFalse(q.contains("skill="), "a null field leaves the hub's default: " + q);
+        assertEquals(4L, page.overview().characters());
+        assertEquals(150_000L, page.overview().gained().today());
+        assertEquals("alice.rs", page.entries().get(0).displayName());
+        assertEquals(150_000L, c.communities().dailyGains("k1", null, 7).complete().orElseThrow().total());
+        assertEquals("/v1/communities/k1/stats/daily", hub.last().uri().getPath());
+        assertEquals("days=7", hub.last().uri().getRawQuery());
+        assertEquals(5L, c.communities().recap("k1", "last-7d").complete().orElseThrow().members().joined());
+        assertEquals("I killed a Vorago.", c.communities().activity("k1", 10).complete().orElseThrow().activities().get(0).text());
+        assertTrue(c.communities().stats("gone").complete().isEmpty(), "404 is empty");
     }
 
     @Test
