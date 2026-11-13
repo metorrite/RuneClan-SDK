@@ -11,7 +11,7 @@
     },
     "x-runeclan-source": {
       "repo": "RuneClan-API",
-      "commit": "51ef525"
+      "commit": "b37093e"
     }
   },
   "servers": [
@@ -13598,7 +13598,8 @@
             "type": [
               "string",
               "null"
-            ]
+            ],
+            "description": "Why the last read of this board didn't count, cleared by the next full read: no_answer, rate_limited, skipped_rate_limited, http_<status>, not_json, no_content, no_total, bad_page, bad_entry, short_read, empty_read, too_many_pages, db_error"
           },
           "lastErrorAt": {
             "type": [
@@ -13613,6 +13614,7 @@
         "properties": {
           "id": {
             "type": "integer",
+            "format": "int64",
             "description": "Jagex's group id"
           },
           "name": {
@@ -13639,6 +13641,7 @@
           },
           "totalXp": {
             "type": "integer",
+            "format": "int64",
             "description": "The whole group's total XP"
           },
           "totalLevel": {
@@ -13672,7 +13675,8 @@
             "type": "string"
           },
           "totalXp": {
-            "type": "integer"
+            "type": "integer",
+            "format": "int64"
           },
           "totalLevel": {
             "type": "integer"

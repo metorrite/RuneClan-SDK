@@ -10,6 +10,7 @@ public record GimBoard(
         /** The last full read */
         String refreshedAt,
         Long entries,
+        /** Why the last read of this board didn't count, cleared by the next full read: no_answer, rate_limited, skipped_rate_limited, http_&lt;status&gt;, not_json, no_content, no_total, bad_page, bad_entry, short_read, empty_read, too_many_pages, db_error */
         String lastError,
         String lastErrorAt
 ) {}
