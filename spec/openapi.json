@@ -11,7 +11,7 @@
     },
     "x-runeclan-source": {
       "repo": "RuneClan-API",
-      "commit": "4877658"
+      "commit": "08d0cfa4"
     }
   },
   "servers": [
@@ -15059,7 +15059,7 @@
                     "competitive_group_ironman",
                     null
                   ],
-                  "description": "The RS3 account type, from the Ironman and Hardcore Ironman Hiscores: an ex-Hardcore (Jagex's death record) is an ironman, an Ironman who left the mode is a main. null until the name's first check. A Group Ironman is only on the main Hiscores, so main is published only once the hub's Group Ironman poll runs (until then a name that is neither an ironman nor a hardcore answers null); group_ironman and competitive_group_ironman come from that poll."
+                  "description": "The RS3 account type, from the Ironman and Hardcore Ironman Hiscores: an ex-Hardcore (Jagex's death record) is an ironman, an Ironman who left the mode is a main. null until the name's first check. A Group Ironman is only on the main Hiscores, so until the hub's Group Ironman poll runs main means on neither the Ironman nor the Hardcore table and may include Group Ironmen; group_ironman and competitive_group_ironman come from that poll."
                 },
                 "skills": {
                   "type": "array",
