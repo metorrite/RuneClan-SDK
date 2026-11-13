@@ -104,6 +104,11 @@ public final class RuneClanClient implements AutoCloseable {
         return new Communities(this);
     }
 
+    /** RS3 Group Ironman groups (Jagex's group leaderboard, read daily by the hub; no members). */
+    public GimGroups gimGroups() {
+        return new GimGroups(this);
+    }
+
     /** Published sites, clan and community alike, by their address. */
     public Sites sites() {
         return new Sites(this);

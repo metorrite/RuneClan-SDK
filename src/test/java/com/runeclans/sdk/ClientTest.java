@@ -129,6 +129,25 @@ class ClientTest {
     }
 
     @Test
+    void gimGroupsAreListedAndReadById() {
+        hub.answer(200, me("", 60, 10))
+                .answer(200, "{\"total\":1,\"limit\":5,\"offset\":0,\"sort\":\"level\",\"groups\":[{\"id\":403738,\"name\":\"pinot\",\"size\":5,\"competitive\":false,"
+                        + "\"type\":\"group_ironman\",\"totalXp\":16392384330,\"totalLevel\":16160,\"boardRank\":1,\"onBoard\":true,\"place\":1}],\"boards\":[]}")
+                .answer(200, "{\"group\":{\"id\":403738,\"name\":\"pinot\"},\"history\":[{\"day\":\"2026-11-13\",\"totalXp\":16392384330,\"totalLevel\":16160}]}")
+                .answer(404, "{\"error\":\"not_found\",\"message\":\"Not found\"}");
+        RuneClanClient c = connect();
+        var list = c.gimGroups().list("pinot", 5, "regular", "level", 5, null).complete();
+        assertEquals("/v1/gim-groups", hub.last().uri().getPath());
+        String q = hub.last().uri().getQuery();
+        assertTrue(q.contains("q=pinot") && q.contains("size=5") && q.contains("mode=regular") && q.contains("sort=level") && q.contains("limit=5") && !q.contains("offset"), q);
+        assertEquals(16_392_384_330L, list.groups().get(0).totalXp());
+        var one = c.gimGroups().get(403738, 7).complete().orElseThrow();
+        assertEquals("/v1/gim-groups/403738", hub.last().uri().getPath());
+        assertEquals(1, one.history().size());
+        assertTrue(c.gimGroups().get(1, null).complete().isEmpty(), "404 is empty");
+    }
+
+    @Test
     void communitiesAreReadLikeClans() {
         hub.answer(200, me("", 60, 10))
                 .answer(200, "{\"data\":[{\"communityId\":\"k1\",\"name\":\"Boss Hunters\",\"slug\":\"boss-hunters\",\"members\":3,\"joinMode\":\"request\",\"requireLink\":true}]}")

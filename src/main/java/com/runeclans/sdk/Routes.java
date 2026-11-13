@@ -284,6 +284,10 @@ public final class Routes {
     public static final Route GET_EVENTS_EVENT_ID_BINGO_TILE_HINTS = new Route("GET", "/v1/events/{eventId}/bingo/tile-hints", List.of(), true, "application/json", com.runeclans.sdk.model.BingoTileHints.class);
     /** Whether RuneSync can tick a tile label by itself (no event yet) */
     public static final Route GET_BINGO_TILE_HINTS = new Route("GET", "/v1/bingo/tile-hints", List.of(), true, "application/json", com.runeclans.sdk.model.BingoTileHints.class);
+    /** Group Ironman groups, best first */
+    public static final Route GET_GIM_GROUPS = new Route("GET", "/v1/gim-groups", List.of(), true, "application/json", com.runeclans.sdk.model.GimGroupList.class);
+    /** One Group Ironman group and its totals history */
+    public static final Route GET_GIM_GROUPS_ID = new Route("GET", "/v1/gim-groups/{id}", List.of(), true, "application/json", com.runeclans.sdk.model.GimGroupDetail.class);
 
     /** Every route above, in spec order. */
     public static final List<Route> ALL = List.of(
@@ -423,5 +427,7 @@ public final class Routes {
             GET_EVENTS_EVENT_ID_WORKSPACE,
             GET_BINGO_LAYOUTS,
             GET_EVENTS_EVENT_ID_BINGO_TILE_HINTS,
-            GET_BINGO_TILE_HINTS);
+            GET_BINGO_TILE_HINTS,
+            GET_GIM_GROUPS,
+            GET_GIM_GROUPS_ID);
 }
