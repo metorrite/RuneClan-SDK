@@ -11,7 +11,7 @@
     },
     "x-runeclan-source": {
       "repo": "RuneClan-API",
-      "commit": "691d867"
+      "commit": "4877658"
     }
   },
   "servers": [
@@ -2493,6 +2493,137 @@
           }
         },
         "description": "Needs the scope `events:read`. Needs the player's grant covering DROPS and their logs set to public; 404 otherwise, exactly like an unknown player. Read-only. 404 while that hub feature is off.",
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "alias",
+            "in": "path",
+            "required": true,
+            "description": "The player's alias for your app",
+            "schema": {
+              "type": "string",
+              "pattern": "^a1_[a-z2-7]{26}$"
+            }
+          },
+          {
+            "name": "X-Guild-Id",
+            "in": "header",
+            "required": false,
+            "description": "The Discord server the read is for. Required when the player limited their grant to some servers.",
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{17,20}$"
+            }
+          }
+        ],
+        "x-runeclan-audience": "public"
+      }
+    },
+    "/v1/players/{alias}/everything": {
+      "get": {
+        "summary": "Everything about a player in one call: player, logs, XP, events, stats, kill counters, pets and achievement progress",
+        "tags": [
+          "Players"
+        ],
+        "responses": {
+          "200": {
+            "description": "Each part, or null with its reason in missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "alias": {
+                      "type": "string"
+                    },
+                    "player": {
+                      "$ref": "#/components/schemas/Player"
+                    },
+                    "logs": {
+                      "type": "object",
+                      "nullable": true
+                    },
+                    "xp": {
+                      "type": "object",
+                      "nullable": true
+                    },
+                    "events": {
+                      "type": "object",
+                      "nullable": true
+                    },
+                    "stats": {
+                      "type": "object",
+                      "nullable": true
+                    },
+                    "kills": {
+                      "type": "array",
+                      "nullable": true,
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "pets": {
+                      "type": "array",
+                      "nullable": true,
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "progress": {
+                      "type": "array",
+                      "nullable": true,
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "missing": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "part": {
+                            "type": "string"
+                          },
+                          "reason": {
+                            "type": "string",
+                            "enum": [
+                              "missing_scope",
+                              "not_shared",
+                              "not_available",
+                              "no_data",
+                              "unavailable"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Refused; see the error code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "426": {
+            "$ref": "#/components/responses/SdkTooOld"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        },
+        "description": "Needs the scope `players:read`. Each part is read like its own route, so the same privacy holds: logs, xp and events need `events:read` and the categories the player shares with your app (Drops, Skill XP; kills needs Boss kills, pets and progress need Achievements); stats are the latest hiscores of the characters the player route lists (outside apps see only public stats of players who don't hide from leaderboards). A part that can't be shown is null and listed in missing: missing_scope, not_shared, not_available (off, hidden or nothing stored), no_data (shown but empty so far) or unavailable (try again). One call of your rate limit.",
         "security": [
           {
             "apiKey": []
@@ -10290,6 +10421,185 @@
         ],
         "x-runeclan-audience": "public"
       }
+    },
+    "/v1/gim-groups": {
+      "get": {
+        "summary": "Group Ironman groups, best first",
+        "tags": [
+          "Players"
+        ],
+        "responses": {
+          "200": {
+            "description": "The groups on the board, and each board's last read",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GimGroupList"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Refused; see the error code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "426": {
+            "$ref": "#/components/responses/SdkTooOld"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        },
+        "description": "Any valid key. From Jagex's UNDOCUMENTED Group Ironman leaderboard (m=runescape_gim_hiscores groupScores), read once a day; it lists no members, so groups carry no member names. When Jagex stops answering, the stored numbers stay and the board's lastError says why.",
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "description": "A part of the group name (at most 40 characters); an exact name first, then names starting with it",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "description": "Group size 1 to 5",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5
+            }
+          },
+          {
+            "name": "mode",
+            "in": "query",
+            "required": false,
+            "description": "regular or competitive",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "regular",
+                "competitive"
+              ]
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "description": "xp (default) or level",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "xp",
+                "level"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "1 to 500, default 50",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "description": "0 to 100000, default 0",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000
+            }
+          }
+        ],
+        "x-runeclan-audience": "public"
+      }
+    },
+    "/v1/gim-groups/{id}": {
+      "get": {
+        "summary": "One Group Ironman group and its totals history",
+        "tags": [
+          "Players"
+        ],
+        "responses": {
+          "200": {
+            "description": "The group (also once it left the board) and its totals by day, oldest first: only days they changed, plus the last change before the window",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GimGroupDetail"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Refused; see the error code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "426": {
+            "$ref": "#/components/responses/SdkTooOld"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        },
+        "description": "Any valid key. From Jagex's UNDOCUMENTED Group Ironman leaderboard (m=runescape_gim_hiscores groupScores), read once a day; it lists no members, so groups carry no member names. When Jagex stops answering, the stored numbers stay and the board's lastError says why. 404 for a group id the hub never saw.",
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Jagex's group id",
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9]{1,18}$"
+            }
+          },
+          {
+            "name": "days",
+            "in": "query",
+            "required": false,
+            "description": "1 to 400, default 30",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 400
+            }
+          }
+        ],
+        "x-runeclan-audience": "public"
+      }
     }
   },
   "components": {
@@ -13393,6 +13703,157 @@
           },
           "rev": {
             "type": "integer"
+          }
+        }
+      },
+      "GimBoard": {
+        "type": "object",
+        "properties": {
+          "size": {
+            "type": "integer"
+          },
+          "competitive": {
+            "type": "boolean"
+          },
+          "refreshedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The last full read"
+          },
+          "entries": {
+            "type": "integer"
+          },
+          "lastError": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Why the last read of this board didn't count, cleared by the next full read: no_answer, rate_limited, skipped_rate_limited, http_<status>, not_json, no_content, no_total, bad_page, bad_entry, short_read, empty_read, too_many_pages, db_error"
+          },
+          "lastErrorAt": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "GimGroup": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Jagex's group id"
+          },
+          "name": {
+            "type": "string"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "competitive": {
+            "type": "boolean"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "group_ironman",
+              "competitive_group_ironman"
+            ]
+          },
+          "founder": {
+            "type": "boolean",
+            "description": "Jagex's founder flag"
+          },
+          "totalXp": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The whole group's total XP"
+          },
+          "totalLevel": {
+            "type": "integer",
+            "description": "The whole group's total level"
+          },
+          "boardRank": {
+            "type": "integer",
+            "description": "Jagex's place on its own board (size and mode) at the last read"
+          },
+          "onBoard": {
+            "type": "boolean",
+            "description": "false once a full read of its board no longer listed it"
+          },
+          "firstSeenAt": {
+            "type": "string"
+          },
+          "seenAt": {
+            "type": "string"
+          },
+          "place": {
+            "type": "integer",
+            "description": "Lists only: place in this list's order across its filters"
+          }
+        }
+      },
+      "GimGroupDay": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "string"
+          },
+          "totalXp": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalLevel": {
+            "type": "integer"
+          }
+        }
+      },
+      "GimGroupDetail": {
+        "type": "object",
+        "properties": {
+          "group": {
+            "$ref": "#/components/schemas/GimGroup"
+          },
+          "history": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GimGroupDay"
+            }
+          }
+        }
+      },
+      "GimGroupList": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer"
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "offset": {
+            "type": "integer"
+          },
+          "sort": {
+            "type": "string"
+          },
+          "groups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GimGroup"
+            }
+          },
+          "boards": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GimBoard"
+            }
           }
         }
       },
@@ -16689,6 +17150,12 @@
     },
     {
       "code": "bad_option",
+      "statuses": [
+        400
+      ]
+    },
+    {
+      "code": "bad_order",
       "statuses": [
         400
       ]
