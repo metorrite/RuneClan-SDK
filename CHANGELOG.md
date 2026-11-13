@@ -21,3 +21,6 @@ First release from this repository (0.1.0 lived inside the hub and was never pub
 - `gimGroups()`: RS3 Group Ironman groups (`GET /v1/gim-groups`, `/v1/gim-groups/{id}`): name, size, mode, group total XP and level, and a totals history. From Jagex's undocumented group leaderboard, read daily by the hub; no members.
 - `communities()`: `list()`, `bySlug(slug)` and `get(communityId)`, read with any key as `clans()` (needs the hub's public community
   routes). The spec now also carries the hub's `Idempotency-Key` header on keyed writes.
+- API reference: `docs/index.html`, one offline page with every method and public route (scopes, parameters, answers, errors, Java and
+  curl examples) and a guide, made by `tools/gen_docs.py`. The jar carries it: `java -cp runeclan-sdk.jar com.runeclans.sdk.Docs`.
+- `examples/`: nine standalone programs, compiled and run against a fake hub by the tests.

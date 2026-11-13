@@ -14,6 +14,18 @@ hub.players().byDiscordId(userId).queue(player -> {
 
 It is a library for the RuneScape 3 clan platform RuneClans. Its only dependency is Jackson (JDA bots already have it).
 
+## The full reference: docs and examples
+
+- **[docs/index.html](docs/index.html)**: every SDK method and every public hub route on one page, with what it does, its scope,
+  parameters, answer fields, errors and a Java and curl example each, plus a guide (keys, scopes, rate limits, retries, errors, testing).
+  It is a single file that works offline: download it and open it in any browser.
+- **The jar carries the same page.** With only the SDK jar: `java -cp runeclan-sdk-0.2.0.jar com.runeclans.sdk.Docs` writes
+  `runeclan-sdk-docs.html` in the current folder and opens it.
+- **[examples/](examples/)**: whole programs to copy (quick start, Discord id lookup, server sync, feed polling, webhook receiver, event
+  standings, any route, error handling, testing with fakes). Each runs on its own with Java 17+:
+  `java -cp runeclan-sdk.jar:jackson-databind.jar:jackson-core.jar:jackson-annotations.jar examples/QuickStart.java`. The SDK's tests
+  compile and run every one against a fake hub, so they keep working.
+
 ## 1. Add it
 
 Releases are built by [JitPack](https://jitpack.io) from this repository's tags (Maven Central comes with 1.0).
@@ -149,9 +161,12 @@ RuneClanClient hub = RuneClan.connect(RuneClanConfig.builder().apiKey(testKey).t
 
 ## Working on the SDK
 
-- `mvn verify` runs the tests; `python3 tools/gen_model.py --check` checks the generated code matches the spec.
+- `mvn verify` runs the tests; `python3 tools/gen_model.py --check` checks the generated code matches the spec and
+  `python3 tools/gen_docs.py --check` that `docs/index.html` is current.
+- After changing a friendly method, the spec or an example, run `python3 tools/gen_docs.py`. New methods need a short example in
+  `tools/docs_content.py`; new files in `examples/` need a test in `ExamplesTest`.
 - `spec/openapi.json` is the hub's spec with only its public operations. Refresh it with `tools/sync_spec.py`, then run
-  `tools/gen_model.py`. Never edit `spec/`, `src/main/java/com/runeclans/sdk/model/` or `Routes.java` by hand.
+  `tools/gen_model.py`. Never edit `spec/`, `src/main/java/com/runeclans/sdk/model/`, `Routes.java` or `docs/index.html` by hand.
 - Branch from `dev`, PR into `dev`. Versions are tagged from `master`.
 
 ## Licence

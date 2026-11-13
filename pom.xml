@@ -39,6 +39,14 @@
     </dependencies>
 
     <build>
+        <resources>
+            <!-- The API reference (made by tools/gen_docs.py) ships inside the jar: run com.runeclans.sdk.Docs to open it -->
+            <resource>
+                <directory>docs</directory>
+                <targetPath>com/runeclans/sdk/docs</targetPath>
+                <includes><include>index.html</include></includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
