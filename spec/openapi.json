@@ -11,7 +11,7 @@
     },
     "x-runeclan-source": {
       "repo": "RuneClan-API",
-      "commit": "4f15d19"
+      "commit": "691d867"
     }
   },
   "servers": [
@@ -14585,6 +14585,21 @@
                     "runemetrics"
                   ]
                 },
+                "accountType": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "enum": [
+                    "main",
+                    "ironman",
+                    "hardcore_ironman",
+                    "group_ironman",
+                    "competitive_group_ironman",
+                    null
+                  ],
+                  "description": "The RS3 account type, from the Ironman and Hardcore Ironman Hiscores: an ex-Hardcore (Jagex's death record) is an ironman, an Ironman who left the mode is a main. null until the name's first check. A Group Ironman is only on the main Hiscores, so main is published only once the hub's Group Ironman poll runs (until then a name that is neither an ironman nor a hardcore answers null); group_ironman and competitive_group_ironman come from that poll."
+                },
                 "skills": {
                   "type": "array",
                   "items": {
@@ -16198,6 +16213,12 @@
   },
   "x-runeclan-error-codes": [
     {
+      "code": "account_types_unavailable",
+      "statuses": [
+        503
+      ]
+    },
+    {
       "code": "actor_mismatch",
       "statuses": [
         403
@@ -16273,6 +16294,12 @@
       "code": "already_yours",
       "statuses": [
         409
+      ]
+    },
+    {
+      "code": "bad_account_type",
+      "statuses": [
+        400
       ]
     },
     {
@@ -16474,6 +16501,12 @@
       ]
     },
     {
+      "code": "bad_entity",
+      "statuses": [
+        400
+      ]
+    },
+    {
       "code": "bad_entry",
       "statuses": [
         400
@@ -16626,6 +16659,12 @@
     },
     {
       "code": "bad_look",
+      "statuses": [
+        400
+      ]
+    },
+    {
+      "code": "bad_metric",
       "statuses": [
         400
       ]
@@ -16806,6 +16845,12 @@
     },
     {
       "code": "bad_since",
+      "statuses": [
+        400
+      ]
+    },
+    {
+      "code": "bad_skill",
       "statuses": [
         400
       ]
