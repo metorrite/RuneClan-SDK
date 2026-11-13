@@ -11,7 +11,7 @@
     },
     "x-runeclan-source": {
       "repo": "RuneClan-API",
-      "commit": "258805a"
+      "commit": "691d867"
     }
   },
   "servers": [
@@ -16213,6 +16213,12 @@
   },
   "x-runeclan-error-codes": [
     {
+      "code": "account_types_unavailable",
+      "statuses": [
+        503
+      ]
+    },
+    {
       "code": "actor_mismatch",
       "statuses": [
         403
@@ -16288,6 +16294,12 @@
       "code": "already_yours",
       "statuses": [
         409
+      ]
+    },
+    {
+      "code": "bad_account_type",
+      "statuses": [
+        400
       ]
     },
     {
@@ -16489,6 +16501,12 @@
       ]
     },
     {
+      "code": "bad_entity",
+      "statuses": [
+        400
+      ]
+    },
+    {
       "code": "bad_entry",
       "statuses": [
         400
@@ -16641,6 +16659,12 @@
     },
     {
       "code": "bad_look",
+      "statuses": [
+        400
+      ]
+    },
+    {
+      "code": "bad_metric",
       "statuses": [
         400
       ]
@@ -16821,6 +16845,12 @@
     },
     {
       "code": "bad_since",
+      "statuses": [
+        400
+      ]
+    },
+    {
+      "code": "bad_skill",
       "statuses": [
         400
       ]
