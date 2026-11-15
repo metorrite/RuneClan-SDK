@@ -1,0 +1,6 @@
+target/
+runeclan.properties
+.idea/
+*.iml
+.vscode/
+__pycache__/
